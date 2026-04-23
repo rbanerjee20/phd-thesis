@@ -134,6 +134,7 @@ specifications}
 
 
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Thesis body:
 %%
@@ -141,39 +142,7 @@ specifications}
 
 \begin{enumerate}
   \item Introduction
-  \begin{enumerate}
-    \item Thesis statement
-    \item Motivation
-    \item Contributions (incl. publications, collaborators -- maybe a few sentences, doesn't need its own subsection)
-    \item Thesis outline
-  \end{enumerate}
   \item Background + related work
-  \begin{enumerate}
-    \item Testing and verification
-    \begin{enumerate}
-      \item in defense of testing (dear formal methods community)
-      \item in defense of specification, checking richer mathematical properties, and possibly working up towards verification (dear software engineering and testing communities)
-      \item see PS specification paper, useful insights (and credit)
-      \item Differing correctness guarantees, and classic cost-benefit comparison
-      \item Social gap
-      \item Testing aids verification -- gradual assurance slope
-      \item Testing is useful even without verification!
-    \end{enumerate}
-    \item Separation logic (how much?)
-    \item CN + Cerberus
-    \item Related work (see first-year report, related work sections of papers)
-    \begin{enumerate}
-      \item Executable specifications
-      \begin{enumerate}
-        \item Hoare Logic runtime specification checking (incl. E-ACSL)
-        \item Linear logic runtime checking - Limin Jia PhD thesis
-        \item Contract checking literature
-        \item SLICK (Java runtime SL checking)
-      \end{enumerate}
-      \item C verification tooling (similar tools but specs not executable or not applicable to real-world C code)
-      \item Gradual verification -- e.g. Gradual C0
-    \end{enumerate}
-  \end{enumerate}
   \item Motivating example, including partial + fragmentary specifications
   \begin{enumerate}
     \item Meld previous simpler CN spec example with narrative from PLDI submission overview section
@@ -197,6 +166,47 @@ specifications}
 
 \chapter{Introduction}
 
+\section{Thesis statement}
+\section{Motivation}
+\section{Publications} 
+(incl. publications, collaborators -- maybe a few sentences, doesn't need its own subsection)
+\section{Thesis outline}
+
+\chapter{Context: Testing specifications}
+
+\begin{enumerate}
+  \item in defense of testing (dear formal methods community)
+  \item in defense of specification, checking richer mathematical properties, and possibly working up towards verification (dear software engineering and testing communities)
+  \item see PS specification paper, useful insights (and credit)
+  \item Differing correctness guarantees, and classic cost-benefit comparison
+  \item Social gap
+  \item Testing aids verification -- gradual assurance slope
+  \item Testing is useful even without verification!
+  \item Why test specifications? Reasons from slide in POPL talk, and story from Code-Spec-Test-Debug-Prove
+\end{enumerate}
+\chapter{Context: Separation-logic specification}
+TODO: change to fit new chapter structure
+\begin{enumerate}
+    \item Separation logic (how much?)
+    \item CN + Cerberus
+    \item Related work (see first-year report, related work sections of papers)
+    \begin{enumerate}
+      \item Executable specifications
+      \begin{enumerate}
+        \item Hoare Logic runtime specification checking (incl. E-ACSL)
+        \item Linear logic runtime checking - Limin Jia PhD thesis
+        \item Contract checking literature
+        \item SLICK (Java runtime SL checking)
+      \end{enumerate}
+      \item C verification tooling (similar tools but specs not executable or not applicable to real-world C code)
+      \item Gradual verification -- e.g. Gradual C0
+    \end{enumerate}
+  \end{enumerate}
+\chapter{Motivating example}
+\chapter{Formalisation}
+\chapter{Design and Implementation}
+\chapter{Evaluation}
+\chapter{Conclusion}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% References:
