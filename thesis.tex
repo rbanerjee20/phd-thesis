@@ -138,7 +138,7 @@ specifications}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Thesis body:
 %%
-\chapter{Outline}
+\chapter{[To delete] Outline}
 
 \begin{enumerate}
   \item Introduction
@@ -174,6 +174,23 @@ specifications}
 
 \chapter{Context: Testing specifications}
 
+\section{What does it mean to test specifications?}
+
+Some short text on what it means to test specifications and how the level of assurance and what it is ensuring differs from their conventional use in verification. (i.e. testing checks properties hold at those particular program points for concrete test cases -- can be used in conjunction with random test generation tooling -- whereas in proof, preconditions imply postconditions etc).
+
+Mention history of testing specifications, dating back to 1970s -- Euclid, Anna.
+
+\section{Why test specifications?}
+
+Slide from LFCS/POPL talk -- flesh out. Also see first-year report, ``1.2 Objectives''.
+
+Code-Specify-Test-Debug-Prove? Maybe allude to it here (testing-and-debugging-specs-centred workflow), and have a separate chapter on it later (how Fulminate is used for that cycle and how it's amenable to it).
+
+Comment on how this is not done much at all, and about the social gap between testing and verification communities.
+
+
+\section{[To delete] Initial bullet sketch}
+
 \begin{enumerate}
   \item in defense of testing (dear formal methods community)
   \item in defense of specification, checking richer mathematical properties, and possibly working up towards verification (dear software engineering and testing communities)
@@ -183,13 +200,7 @@ specifications}
   \item Testing aids verification -- gradual assurance slope
   \item Testing is useful even without verification!
   \item Why test specifications? Reasons from slide in POPL talk, and story from Code-Spec-Test-Debug-Prove
-\end{enumerate}
-\chapter{Context: Separation-logic specification}
-TODO: change to fit new chapter structure
-\begin{enumerate}
-    \item Separation logic (how much?)
-    \item CN + Cerberus
-    \item Related work (see first-year report, related work sections of papers)
+  \item Related work (see first-year report, related work sections of papers)
     \begin{enumerate}
       \item Executable specifications
       \begin{enumerate}
@@ -201,10 +212,65 @@ TODO: change to fit new chapter structure
       \item C verification tooling (similar tools but specs not executable or not applicable to real-world C code)
       \item Gradual verification -- e.g. Gradual C0
     \end{enumerate}
+\end{enumerate}
+\chapter{Context: Testing separation-logic specifications}
+
+Focus now on systems setting. Motivate why reliability of systems software so important (bug propagating upward, affecting all software running on top of it), and say most systems software is written in C. Look at Kayvan thesis related work briefly?
+
+\section{Separation logic}
+
+History:
+
+Hoare logic not good for reasoning about aliasing pointers. Number of inequalities blows up. Motivated creation of separation logic by Reynolds and O'Hearn. $p \mapsto v$, $A \ast B$, frame rule. See LFCS/Birmingham slides. Active research area, lots of research in it today. Link back to systems setting -- these operators make heap memory reasoning compositional which is great when reasoning about programs written in e.g. C or Rust.
+
+\section{Executing separation logic}
+
+Comment on technical difficulty of executing $\ast$ operator and give example of how it blows up. Backtracking, arbitrary quantification over pointers, etc.
+
+
+\chapter{Related work}
+
+See first-year report as a starting point.
+
+\begin{enumerate}
+  \item Executable specifications
+  \begin{enumerate}
+    \item Hoare Logic runtime specification checking (incl. E-ACSL) - no ownership
+    \item Linear logic runtime checking - Limin Jia PhD thesis - not SL
+    \item Contract checking literature
+    \item SLICK (Java runtime SL checking) - not C
   \end{enumerate}
-\chapter{Motivating example}
+  \item C separation-logic verification tooling (similar tools but specs not executable or not applicable to real-world C code) -- e.g. RefinedC, Gillian. See CN and Fulminate papers' related work sections
+  \item Gradual verification -- e.g. Gradual C0
+\end{enumerate}
+
+\chapter{Fulminate: Motivating example}
+
+\section{The CN separation-logic specification language}
+
+Cover $p \mapsto v$ and \texttt{Owned}
+IntList example (should be in above spec example) and side-by-side comparison between standard SL formulae and CN representation. 
+
+
+\section{Writing partial CN specifications using Fulminate}
+
+Small spec example, using IntList. Explain CN semicolon is $\ast$. 
+
+Say Fulminate takes CN+C files, gives C file with checks in the expected places. Fulminate tracks ownership of stack-local and heap addresses; instruments access checks to ensure ownership of an address has been asserted properly before it is read from or written to.
+
+Show Fulminate runtime ownership error from partial spec, debug and fix up spec, run again.
+
+
 \chapter{Formalisation}
 \chapter{Design and Implementation}
+\chapter{Code-Specify-Test-Debug-Prove, using Fulminate}
+
+Working chapter title. Might be better not to put workflow name in title.
+
+
+Include diagram from Keynote slides. Make diagram more generic; our work has been without the Code part of the cycle, so I made diagram specific to the retroactive case, but it needs to be more general. (Starts with ``Write partial specs'' which assumes a pre-existing codebase)
+
+
 \chapter{Evaluation}
 \chapter{Conclusion}
 
