@@ -166,20 +166,19 @@ specifications}
 
 \chapter{Introduction}
 
+PS 29/04: Intro can be long. Can have the Code-Spec-Test-Debug-Prove diagram! Doesn't need to be short and sweet if that's not how I want it to be.
+
 \section{Thesis statement}
+
+PS 29/04: Might need to come later after motivation.
 \section{Motivation}
-\section{Thesis outline}
-\section{Publications} 
-(incl. publications, collaborators -- maybe a few sentences, doesn't need its own subsection)
-
-
-\chapter{Context: Testing specifications}
+\section{Testing specifications}
 
 Some short text on what it means to test specifications and how the level of assurance and what it is ensuring differs from their conventional use in verification. (i.e. testing checks properties hold at those particular program points for concrete test cases -- can be used in conjunction with random test generation tooling -- whereas in proof, preconditions imply postconditions etc).
 
 Mention history of testing specifications, dating back to 1970s -- Euclid, Anna.
 
-\section{Why test specifications?}
+\subsection{Why test specifications?}
 
 Slide from LFCS/POPL talk -- flesh out. Also see first-year report, ``1.2 Objectives''.
 
@@ -188,7 +187,7 @@ Code-Specify-Test-Debug-Prove? Maybe allude to it here (testing-and-debugging-sp
 Comment on how this is not done much at all, and about the social gap between testing and verification communities.
 
 
-\section{other notes}
+\subsection{other notes}
 
 \begin{enumerate}
   \item in defense of testing (dear formal methods community)
@@ -200,6 +199,37 @@ Comment on how this is not done much at all, and about the social gap between te
   \item Testing is useful even without verification!
   \item NK 29/04: assertions that developers write in C usually only involve C-local variables; they care about performance a lot more than we do, and there's no abstraction/building of ghost state. Therefore, much shallower properties are checked on average. On the other hand, CN describes everything abstractly for the purpose of proof. Fulminate falls somewhere in between, and was not designed to be high-performance from the outset (see: ghost state construction and its overhead), but for running in real systems environments (e.g. EL2) this is something we care about.    
 \end{enumerate}
+
+\section{A testing-centred workflow for writing specifications}
+
+Code-Specify-Test-Debug-Prove. Generic here; can make concrete later with CN toolchain for C code.
+
+Include diagram from Keynote slides. Make diagram more generic; our work has been without the Code part of the cycle, so I made diagram specific to the retroactive case, but it needs to be more general. (Diagram currently starts with ``Write partial specs'' which assumes a pre-existing codebase)
+
+\section{Testing separation-logic specifications}
+
+Focus now on systems setting. Motivate why reliability of systems software so important (bug propagating upward, affecting all software running on top of it), and say most systems software is written in C. Look at Kayvan thesis related work briefly?
+
+\subsection{Separation logic}
+
+History:
+
+Hoare logic not good for reasoning about aliasing pointers. Number of inequalities blows up. Motivated creation of separation logic by Reynolds and O'Hearn. $p \mapsto v$, $A \ast B$, frame rule. See LFCS/Birmingham slides. Active research area, lots of research in it today. Link back to systems setting -- these operators make heap memory reasoning compositional which is great when reasoning about programs written in e.g. C or Rust.
+
+\subsection{Executing separation logic}
+
+Comment on technical difficulty of executing $\ast$ operator and give example of how it blows up. Backtracking, arbitrary quantification over pointers, etc.
+
+
+
+\section{Thesis outline}
+\section{Publications} 
+(incl. publications, collaborators -- maybe a few sentences, doesn't need its own subsection)
+
+PS 29/04: Thesis outline and publications might become a single section. Plus discussion of exactly which bits I did.
+
+
+
 
 
 \chapter{Related work}
@@ -217,20 +247,6 @@ See first-year report as a starting point.
   \item C separation-logic verification tooling (similar tools but specs not executable or not applicable to real-world C code) -- e.g. RefinedC, Gillian. See CN and Fulminate papers' related work sections
   \item Gradual verification -- e.g. Gradual C0
 \end{enumerate}
-
-\chapter{Testing separation-logic specifications}
-
-Focus now on systems setting. Motivate why reliability of systems software so important (bug propagating upward, affecting all software running on top of it), and say most systems software is written in C. Look at Kayvan thesis related work briefly?
-
-\section{Separation logic}
-
-History:
-
-Hoare logic not good for reasoning about aliasing pointers. Number of inequalities blows up. Motivated creation of separation logic by Reynolds and O'Hearn. $p \mapsto v$, $A \ast B$, frame rule. See LFCS/Birmingham slides. Active research area, lots of research in it today. Link back to systems setting -- these operators make heap memory reasoning compositional which is great when reasoning about programs written in e.g. C or Rust.
-
-\section{Executing separation logic}
-
-Comment on technical difficulty of executing $\ast$ operator and give example of how it blows up. Backtracking, arbitrary quantification over pointers, etc.
 
 
 
@@ -259,13 +275,11 @@ Show Fulminate runtime ownership error from partial spec, debug and fix up spec,
 
 Fulminate paper, link to Dhruv's supplementary material and credit him (+ Hiro if including partial spec formalisation).
 
-\chapter{Fulminate: Design and Implementation}
+\chapter{Implementation}
 
 Fulminate paper plus whatever comes to mind.
 
-\chapter{Partial specifications}
-
-
+\section{Partial specifications}
 
 \begin{enumerate}
   \item Partial function-level specs
@@ -273,15 +287,12 @@ Fulminate paper plus whatever comes to mind.
   \item Wildcard ownership
 \end{enumerate}
 
-\chapter{A testing-centred workflow for writing specifications}
-
-Code-Specify-Test-Debug-Prove. Start generic, and then move towards our concrete workflow using the CN specification language, Fulminate, Bennet+Darcy, and CN proof.
-
-Include diagram from Keynote slides. Make diagram more generic; our work has been without the Code part of the cycle, so I made diagram specific to the retroactive case, but it needs to be more general. (Diagram currently starts with ``Write partial specs'' which assumes a pre-existing codebase)
 
 
 
 \chapter{Case studies}
+
+PS 29/04: Calling this section ``Evaluation'' is kind of underselling the importance of this chapter.
 
 \begin{itemize}
   \item Tutorial examples (CN, Verifast, incremental stack example)
@@ -293,17 +304,21 @@ Include diagram from Keynote slides. Make diagram more generic; our work has bee
   \end{itemize}
 \end{itemize}
 
-\section{Performance}
 
-copy-paste from PLDI '26 paper
 
-\section{Bugs}
+% \section{Applying Code-Specify-Test-Debug-Prove}
 
-Specification bugs; Hiro's experience section from PLDI paper.
+% \section{Performance}
 
-\section{Usability}
+% copy-paste from PLDI '26 paper
 
-Say upfront we don't have anything sophisticated like user studies. (check status of DARPA ones)
+% \section{Bugs}
+
+% Specification bugs; Hiro's experience section from PLDI paper.
+
+% \section{Usability}
+
+% Say upfront we don't have anything sophisticated like user studies. (check status of DARPA ones)
 
 \begin{itemize}
   \item integration with LLDB
