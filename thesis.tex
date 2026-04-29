@@ -198,6 +198,7 @@ Comment on how this is not done much at all, and about the social gap between te
   \item Social gap
   \item Testing aids verification -- gradual assurance slope
   \item Testing is useful even without verification!
+  \item NK 29/04: assertions that developers write in C usually only involve C-local variables; they care about performance a lot more than we do, and there's no abstraction/building of ghost state. Therefore, much shallower properties are checked on average. On the other hand, CN describes everything abstractly for the purpose of proof. Fulminate falls somewhere in between, and was not designed to be high-performance from the outset (see: ghost state construction and its overhead), but for running in real systems environments (e.g. EL2) this is something we care about.    
 \end{enumerate}
 
 
