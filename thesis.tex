@@ -411,52 +411,64 @@ Fulminate paper, link to Dhruv's supplementary material and credit him (+ Hiro i
   \item discuss alternative -- taking Typed Ail program and injecting Ail statements into that directly, and then pretty-printing the whole Ail program. Wouldn't work with existing Ail pretty-printer, which doesn't print valid C in general, and also messes with the shape of the source in unclear ways (enumerate some things Ail abstracts away, e.g. enums), which makes debugging with lldb/knowing which parts are Fulminate and which were already in the source more unclear
 \end{enumerate}
 
-\section{CN specifications in Fulminate}
 
-Mention somewhere beforehand that all memory accesses (Ail program analysed to instrument all loads and stores) are wrapped with calls to \texttt{CN\_LOAD} and \texttt{CN\_STORE} macros (and explain what they do). Enumerate and mention postfix macro too, all in \texttt{utils} library
+\section{Translation: Pure expressions}
 
 Link to \S\ref{sec:cn-index-terms}
 
-\subsection{Pure expressions}
+Describe destination passing~\cite{destinationPassing} for translating from CN (expression language) to C (statement language).
 
-Describe destination passing~\cite{destination-passing} for translating from CN (expression language) to C (statement language).
 
 \textbf{TODO}: Double-check the following list covers all index terms in appendix.
 
-\subsubsection{Constants}
-\subsubsection{Symbols} including special handling of globals in \texttt{accesses} clauses, using \texttt{is\_sym\_obj\_address}
-\subsubsection{Unary and binary operators}
-\subsubsection{If-then-else}
-\subsubsection{Iterated logical conjunction}
-\subsubsection{Structs}
+\subsection{Constants}
+\subsection{Symbols} including special handling of globals in \texttt{accesses} clauses, using \texttt{is\_sym\_obj\_address}
+\subsection{Unary and binary operators}
+\subsection{If-then-else}
+\subsection{Iterated logical conjunction}
+\subsection{Structs}
 Structs in CN can only refer to C structs that have already been defined in source (???) check
-\subsubsection{Records}
-\subsubsection{Datatypes}
-\texttt{Constructor} and pattern matching
+\subsection{Records}
+\subsection{Datatypes}
+\texttt{Constructor} and pattern matching - matrix algorithm~\cite{matrixAlgorithm}
 
-\subsubsection{Member shift and array shift}
-\subsubsection{Sizeof and offsetof}
-\subsubsection{Maps}
-\subsubsection{Lemma (and function?) application}
-\subsubsection{Let expressions}
-\subsubsection{Casts}
+\subsection{Member shift and array shift}
+\subsection{Sizeof and offsetof}
+\subsection{Maps}
+\subsection{Lemma (and function?) application}
+\subsection{Let expressions}
+\subsection{Casts}
 
-\subsubsection{Unsupported expressions}
+\subsection{Unsupported expressions}
 
 \texttt{AllocID} stuff all for VIP
 
 
-\subsection{Resources}
-\subsubsection{Owned}
-implemented differently depending on whether found in precondition, postcondition, or loop
-\subsubsection{Iterated separating conjunction}
+\section{Resources and ownership}
 
-mention recent optimisations for asserting ownership in a single call for contiguous memory regions and not creating maps when never used. Can do more and make it cleverer...
+Global ownership ghost state mapping bytes of memory to ``their'' (better phrasing) stack depth. Diagram of ghost state. Intuition for what it means and what types of errors we can catch via this mapping.
 
-\section{Stack-local ownership checking}
+Mention that all memory accesses (Ail program analysed to instrument all loads and stores) are wrapped with calls to \texttt{CN\_LOAD} and \texttt{CN\_STORE} macros (and explain what they do). Enumerate and mention postfix macro too, all in \texttt{utils} library
+
+
+\subsection{\texttt{Owned}}
+Tie back to scheme described in overview at start of section. Works differently depending on whether call to \texttt{Owned} in precondition, postcondition, or loop
+\subsection{Iterated separating conjunction}
+
+\begin{enumerate}
+  \item only works for bounded conjunctions
+  \item mention recent optimisations for asserting ownership in a single call for contiguous memory regions and not creating maps when never used. Can do more and make it cleverer...
+\end{enumerate}
+
+
+\subsection{Ownership for stack-allocated locals}
+
+
 
 
 \section{Partial specifications}
+
+Why do we need them? Usability reasons - motivate. Explain using problems experienced when Fulminate didn't support these.
 
 \begin{enumerate}
   \item Partial function-level specs
@@ -506,19 +518,10 @@ PS 29/04: Calling this section ``Evaluation'' is kind of underselling the import
 
 speculate on future directions (e.g. concurrency, VIP)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% References:
-%%
-% If you include some work not referenced in the main text (e.g. using \nocite{}), consider changing "References" to "Bibliography".
-%
 
-% \renewcommand to change default "Bibliography" to "References"
-\renewcommand{\bibname}{References}
-\cleardoublepage
-\phantomsection
-\addcontentsline{toc}{chapter}{References}
 \bibliographystyle{plainnat}
 \bibliography{thesis}
+
 
 
 
