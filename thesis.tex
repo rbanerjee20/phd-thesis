@@ -43,6 +43,8 @@
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{statistics}
 
+\usepackage{minted}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Thesis meta-information
 %%
@@ -409,7 +411,7 @@ Fulminate paper, link to Dhruv's supplementary material and credit him (+ Hiro i
 
 \section{CN specifications in Fulminate}
 
-\subsection{CN surface language syntax}
+
 
 
 \section{Partial specifications}
@@ -484,8 +486,70 @@ speculate on future directions (e.g. concurrency, VIP)
 
 \appendix
 
-\chapter{Extra Information}
-Some more text ...
+\chapter{CN types in OCaml}
+
+\section{CN index terms}
+
+\begin{minted}[breaklines]{ocaml}
+(* over integers and reals *)
+type 'bt term =
+  | Const of const
+  | Sym of Sym.t
+  | Unop of unop * 'bt annot
+  | Binop of binop * 'bt annot * 'bt annot
+  | ITE of 'bt annot * 'bt annot * 'bt annot
+  | EachI of (int * (Sym.t * BaseTypes.t) * int) * 'bt annot
+  (* add Z3's Distinct for separation facts *)
+  | Tuple of 'bt annot list
+  | NthTuple of int * 'bt annot
+  | Struct of Sym.t * (Id.t * 'bt annot) list
+  | StructMember of 'bt annot * Id.t
+  | StructUpdate of ('bt annot * Id.t) * 'bt annot
+  | Record of (Id.t * 'bt annot) list
+  | RecordMember of 'bt annot * Id.t
+  | RecordUpdate of ('bt annot * Id.t) * 'bt annot (* this is currently unused *)
+  | Constructor of Sym.t * (Id.t * 'bt annot) list
+  | MemberShift of 'bt annot * Sym.t * Id.t
+  | ArrayShift of
+      { base : 'bt annot;
+        ct : Sctypes.t;
+        index : 'bt annot
+      }
+  | CopyAllocId of
+      { addr : 'bt annot;
+        loc : 'bt annot
+      }
+  | HasAllocId of 'bt annot
+  | SizeOf of Sctypes.t
+  | OffsetOf of Sym.t * Id.t
+  | Nil of BaseTypes.t
+  | Cons of 'bt annot * 'bt annot
+  | Head of 'bt annot
+  | Tail of 'bt annot
+  | Representable of Sctypes.t * 'bt annot
+  | Good of Sctypes.t * 'bt annot
+  | Aligned of
+      { t : 'bt annot;
+        align : 'bt annot
+      }
+  | WrapI of Sctypes.IntegerTypes.t * 'bt annot
+  | MapConst of BaseTypes.t * 'bt annot
+  | MapSet of 'bt annot * 'bt annot * 'bt annot
+  | MapGet of 'bt annot * 'bt annot
+  | MapDef of (Sym.t * BaseTypes.t) * 'bt annot
+  | Apply of Sym.t * 'bt annot list
+  | Let of (Sym.t * 'bt annot) * 'bt annot
+  | Match of 'bt annot * ('bt pattern * 'bt annot) list
+  | Cast of BaseTypes.t * 'bt annot
+  | CN_None of BaseTypes.t
+  | CN_Some of 'bt annot
+  | IsSome of 'bt annot
+  | GetOpt of 'bt annot
+
+and 'bt annot =
+  | IT of 'bt term * 'bt * (Locations.t[@equal fun _ _ -> true] [@compare fun _ _ -> 0])
+[@@deriving eq, ord, map]
+\end{minted}
 
 
 
