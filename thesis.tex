@@ -411,7 +411,47 @@ Fulminate paper, link to Dhruv's supplementary material and credit him (+ Hiro i
 
 \section{CN specifications in Fulminate}
 
+Mention somewhere beforehand that all memory accesses (Ail program analysed to instrument all loads and stores) are wrapped with calls to \texttt{CN\_LOAD} and \texttt{CN\_STORE} macros (and explain what they do). Enumerate and mention postfix macro too, all in \texttt{utils} library
 
+Link to \S\ref{sec:cn-index-terms}
+
+\subsection{Pure expressions}
+
+Describe destination passing~\cite{destination-passing} for translating from CN (expression language) to C (statement language).
+
+\textbf{TODO}: Double-check the following list covers all index terms in appendix.
+
+\subsubsection{Constants}
+\subsubsection{Symbols} including special handling of globals in \texttt{accesses} clauses, using \texttt{is\_sym\_obj\_address}
+\subsubsection{Unary and binary operators}
+\subsubsection{If-then-else}
+\subsubsection{Iterated logical conjunction}
+\subsubsection{Structs}
+Structs in CN can only refer to C structs that have already been defined in source (???) check
+\subsubsection{Records}
+\subsubsection{Datatypes}
+\texttt{Constructor} and pattern matching
+
+\subsubsection{Member shift and array shift}
+\subsubsection{Sizeof and offsetof}
+\subsubsection{Maps}
+\subsubsection{Lemma (and function?) application}
+\subsubsection{Let expressions}
+\subsubsection{Casts}
+
+\subsubsection{Unsupported expressions}
+
+\texttt{AllocID} stuff all for VIP
+
+
+\subsection{Resources}
+\subsubsection{Owned}
+implemented differently depending on whether found in precondition, postcondition, or loop
+\subsubsection{Iterated separating conjunction}
+
+mention recent optimisations for asserting ownership in a single call for contiguous memory regions and not creating maps when never used. Can do more and make it cleverer...
+
+\section{Stack-local ownership checking}
 
 
 \section{Partial specifications}
@@ -488,7 +528,7 @@ speculate on future directions (e.g. concurrency, VIP)
 
 \chapter{CN types in OCaml}
 
-\section{CN index terms}
+\section{CN index terms}\label{sec:cn-index-terms}
 
 \begin{minted}[breaklines]{ocaml}
 (* over integers and reals *)
