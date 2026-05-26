@@ -214,6 +214,14 @@ Comment on how this is not done much at all, and about the social gap between te
 
 \section{A testing-centred workflow for writing specifications}
 
+\begin{figure}
+  \centering
+  \scalebox{0.55}{
+  \includegraphics{assets/code-spec-test-debug-prove.png}
+  }
+  \caption{Code-Specify-Test-Debug-Prove. \textbf{TODO}: redo, this is just copied from my Keynote}
+\end{figure}
+
 Code-Specify-Test-Debug-Prove. Generic here; can make concrete later with CN toolchain for C code.
 
 Include diagram from Keynote slides. Make diagram more generic; our work has been without the Code part of the cycle, so I made diagram specific to the retroactive case, but it needs to be more general. (Diagram currently starts with ``Write partial specs'' which assumes a pre-existing codebase)
@@ -387,11 +395,21 @@ Fulminate paper, link to Dhruv's supplementary material and credit him (+ Hiro i
 
 
 \end{tikzpicture}
-\caption{Fulminate architecture}\label{fig:fulm}
+\caption{Fulminate architecture (\textbf{TODO}: fix overlapping boxes)}\label{fig:fulm}
 \end{figure}
 
-architecture diagram (credit PS). CN+C file $\rightarrow$ Shared CN+Cerberus frontend $\rightarrow$ Typed Ail + Mucore $\rightarrow$ Ail to be injected back $\rightarrow$ Strings to be injected back $\rightarrow$ C file with instrumentation
+\begin{enumerate}
+  \item architecture diagram (credit PS)
+  \item CN+C file $\rightarrow$ Shared CN+Cerberus frontend $\rightarrow$ Typed Ail + Mucore $\rightarrow$ Ail to be injected back $\rightarrow$ Strings to be injected back $\rightarrow$ C file with instrumentation
+  \begin{enumerate}
+    \item CN has two (?) ASTs -- external untyped AST and internal typed AST. We choose the latter as we need to know the basetypes in Fulminate (explain why)
+  \end{enumerate}
+  \item discuss alternative -- taking Typed Ail program and injecting Ail statements into that directly, and then pretty-printing the whole Ail program. Wouldn't work with existing Ail pretty-printer, which doesn't print valid C in general, and also messes with the shape of the source in unclear ways (enumerate some things Ail abstracts away, e.g. enums), which makes debugging with lldb/knowing which parts are Fulminate and which were already in the source more unclear
+\end{enumerate}
 
+\section{CN specifications in Fulminate}
+
+\subsection{CN surface language syntax}
 
 
 \section{Partial specifications}
