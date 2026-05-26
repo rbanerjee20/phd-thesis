@@ -28,6 +28,21 @@
 % Citations using numbers
 \usepackage[numbers]{natbib}
 
+\usepackage{tikz}
+\usetikzlibrary{calc,tikzmark,decorations.pathmorphing}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{shapes,shapes.geometric,graphs,quotes,arrows.meta,positioning,calc,chains,trees}
+\usetikzlibrary{decorations,trees,spy,shadows,backgrounds,fit,trees,matrix,automata}
+\usetikzlibrary{shadows.blur}
+\usetikzlibrary{tikzmark}
+\usetikzlibrary{fit}
+\usetikzlibrary{chains}
+\usetikzlibrary{decorations.pathreplacing,arrows.meta,calc,positioning,calligraphy}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{statistics}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Thesis meta-information
 %%
@@ -194,7 +209,7 @@ Comment on how this is not done much at all, and about the social gap between te
   \item Social gap
   \item Testing aids verification -- gradual assurance slope
   \item Testing is useful even without verification!
-  \item NK 29/04: assertions that developers write in C usually only involve C-local variables; they care about performance a lot more than we do, and there's no abstraction/building of ghost state. Therefore, much shallower properties are checked on average. On the other hand, CN describes everything abstractly for the purpose of proof. Fulminate falls somewhere in between, and was not designed to be high-performance from the outset (see: ghost state construction and its overhead), but for running in real systems environments (e.g. EL2) this is something we care about.    
+  \item NK 29/04: assertions that developers write in C usually only involve C-local variables; they care about performance a lot more than we do, and there's no abstraction/building of ghost state. Therefore, much shallower properties are checked on average. On the other hand, CN describes everything abstractly for the purpose of proof. Fulminate falls somewhere in between, and was not designed to be high-performance from the outset (see: ghost state construction and its overhead), but for running in real systems environments (e.g. EL2) this is something we care about. Also, Fulminate instruments everything it sees -- no limit/performance-based optimisation. It wants to check as much as it possibly can. 
 \end{enumerate}
 
 \section{A testing-centred workflow for writing specifications}
@@ -253,7 +268,7 @@ See first-year report as a starting point.
 
 \chapter{Example}
 
-Question for PS and NK: cannot work out whether to present in context of Code-Spec-Test-Debug-Prove from the start, or whether to present complete specifications in the style of proof initially, just to show the mechanism of how Fulminate works, and then only introduce partial specs in later chapter. 
+Do example with partial specifications
 
 \section{The CN separation-logic specification language}
 
@@ -278,7 +293,106 @@ Fulminate paper, link to Dhruv's supplementary material and credit him (+ Hiro i
 
 \chapter{Implementation}
 
-Fulminate paper plus whatever comes to mind.
+\section{Architecture}
+
+\begin{figure}
+% \begin{verbatim}
+%          C program + CN annotations -------------------------------------------
+%                 |                                                             |
+%          Cerberus front-end                                                   |
+%          (parsing, desugaring, and C type inference/checking)                 |
+%                 |                                                             |
+%          Typed Ail  ----------------------------------------------------|     |
+%                 |                                                       |     |
+%           Cerberus elaboration                                          |     |
+%        /                          \                                     |     |
+%     Core                              MuCore               -----        |     |
+%        |                                |                       \       |     |
+% Core operational semantics        CN proof tooling                ->Fulminate translation
+%        |                         (refinement type inf)                  |
+%        |                                |                               |
+%    executions                      yes/no                               C
+%                                                                         |
+%                                                                     gcc/clang
+%                                                                         |
+%                                                                       executions with failures
+% \end{verbatim}
+
+
+\tikzset{%
+  >={Latex[width=2mm,length=2mm]},
+  % Specifications for style of nodes:
+            artifact/.style = {
+                           minimum width=1cm, minimum height=0.3cm,
+                           text centered, font=\rmfamily\small},
+            base/.style = {rectangle, rounded corners, %draw=black,
+                           minimum width=1cm, minimum height=0.3cm,
+                           text centered, font=\rmfamily\small},
+  activityStarts/.style = {base, fill=blue!30},
+       startstop/.style = {base, fill=red!30},
+    activityRuns/.style = {base, fill=green!30},
+         process/.style = {base, minimum width=1cm, fill=orange!15,
+                           font=\rmfamily\small},
+}
+
+\begin{tikzpicture}[node distance=1.2cm,
+    every node/.style={fill=white, font=\rmfamily\small}, align=center]
+
+  \node (CandCN)             [artifact]              {C program + CN annotations};
+  \node (frontend)           [process, below of=CandCN] {Cerberus front-end\\\footnotesize parsing, desugaring, C type inference/checking};
+  \node (TypedAil)           [artifact, below of=frontend]  {Typed Ail\\\footnotesize Typed C abstract syntax};
+  \node (elab)               [process, below of=TypedAil]   {Cerberus elaboration};
+
+  \node (Core)               [artifact, below of=elab, xshift=-2.2cm, text=black!30] {Cerberus Core of C};
+  \node (CoreOpsem)          [process, below of=Core, text=black!30]           {Core operational semantics};
+  \node (CoreEx)             [artifact, below of=CoreOpsem, text=black!30]     {Core executions};
+
+  \node (MuCore)             [artifact, below of=elab, xshift=2.2cm] {MuCore of C + MuCore of CN};
+  \node (CNproof)            [process, below of=MuCore]          {CN proof tooling\\\footnotesize refinement type inference+SMT};
+  \node (verif)              [artifact, below of=CNproof]     {CN verification yes/no};
+
+
+  \node (Fulm)             [process, below of=elab, xshift=6.6cm, yshift=-1.2cm] {Fulminate\\\footnotesize C+CN to C translation};
+  \node (C)                [artifact, below of=Fulm]          {generated C};
+  \node (gcc)              [process, below of=C]            {gcc/clang};
+  \node (Cexec)            [artifact, below of=gcc]          {conventional binary executions with \\CN specification failure detection};
+
+  \node (gccplain)              [process, below of=elab, xshift=-6.6cm, yshift=-3.6cm]   {gcc/clang};
+  \node (Cexecplain)            [artifact, below of=gccplain]          {conventional\\binary executions};
+
+
+  \draw[->] (CandCN) -- (frontend);
+  \draw[->] (frontend) -- (TypedAil);
+  \draw[->] (TypedAil) -- (elab);
+
+  \draw[->, black!30] (elab) to  (Core);
+  \draw[->, black!30] (Core) -- (CoreOpsem);
+  \draw[->, black!30] (CoreOpsem) -- (CoreEx);
+
+  \draw[->] (elab) -- (MuCore);
+  \draw[->] (MuCore) -- (CNproof);
+  \draw[->] (CNproof) -- (verif);
+
+  \draw[->] (MuCore.east) to [bend left=5] (Fulm);
+  \draw[->] (Fulm) -- (C);
+  \draw[->] (C) -- (gcc);
+  \draw[->] (gcc) -- (Cexec);
+
+  \draw[->] (CandCN) to [bend left=38] (Fulm);
+  \draw[->] (TypedAil) to [bend left=10] (Fulm);
+
+  \draw[->] (CandCN.south west) to [bend right=38] (gccplain);
+  \draw[->] (gccplain) -- (Cexecplain);
+
+
+
+\end{tikzpicture}
+\caption{Fulminate architecture}\label{fig:fulm}
+\end{figure}
+
+architecture diagram (credit PS). CN+C file $\rightarrow$ Shared CN+Cerberus frontend $\rightarrow$ Typed Ail + Mucore $\rightarrow$ Ail to be injected back $\rightarrow$ Strings to be injected back $\rightarrow$ C file with instrumentation
+
+
 
 \section{Partial specifications}
 
