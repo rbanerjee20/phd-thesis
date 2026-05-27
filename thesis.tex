@@ -129,6 +129,7 @@ specifications}
 
 
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Glossary [optional]:
 %%
@@ -280,7 +281,7 @@ See first-year report as a starting point.
 
 \chapter{Example}
 
-Do example with partial specifications
+Do example with partial specifications. Include error messages, debugging with \texttt{lldb}, etc
 
 \section{The CN separation-logic specification language}
 
@@ -411,8 +412,17 @@ Fulminate paper, link to Dhruv's supplementary material and credit him (+ Hiro i
   \item discuss alternative -- taking Typed Ail program and injecting Ail statements into that directly, and then pretty-printing the whole Ail program. Wouldn't work with existing Ail pretty-printer, which doesn't print valid C in general, and also messes with the shape of the source in unclear ways (enumerate some things Ail abstracts away, e.g. enums), which makes debugging with lldb/knowing which parts are Fulminate and which were already in the source more unclear
 \end{enumerate}
 
+\section{Top-level translation machinery}\label{sec:top-level-translation}
 
-\section{Translation: Pure expressions}
+Some covered in motivating example, probably.
+
+\subsection{Preconditions}
+\subsection{Postconditions}
+\subsection{Loop invariants}
+paper text, including from appendix
+
+
+\section{Translation of pure expressions}
 
 Link to \S\ref{sec:cn-index-terms}
 
@@ -446,13 +456,15 @@ Structs in CN can only refer to C structs that have already been defined in sour
 
 \section{Resources and ownership}
 
-Global ownership ghost state mapping bytes of memory to ``their'' (better phrasing) stack depth. Diagram of ghost state. Intuition for what it means and what types of errors we can catch via this mapping.
+\subsection{Overview}
+
+Global ownership ghost state mapping bytes of memory to ``their'' (better phrasing) stack depth. Diagram of ghost state. Intuition for what it means and what types of errors we can catch via this mapping. 
 
 Mention that all memory accesses (Ail program analysed to instrument all loads and stores) are wrapped with calls to \texttt{CN\_LOAD} and \texttt{CN\_STORE} macros (and explain what they do). Enumerate and mention postfix macro too, all in \texttt{utils} library
 
 
 \subsection{\texttt{Owned}}
-Tie back to scheme described in overview at start of section. Works differently depending on whether call to \texttt{Owned} in precondition, postcondition, or loop
+Tie back to scheme described in overview at start of section. Works differently depending on whether call to \texttt{Owned} in precondition, postcondition, or loop (see \S\ref{sec:top-level-translation})
 \subsection{Iterated separating conjunction}
 
 \begin{enumerate}
@@ -461,10 +473,57 @@ Tie back to scheme described in overview at start of section. Works differently 
 \end{enumerate}
 
 
-\subsection{Ownership for stack-allocated locals}
+\subsection{Stack-allocated locals}
+
+Mapping their addresses to ghost state. C control flow support: \texttt{return}, \texttt{goto}, \texttt{break}, \texttt{continue}. C memory access instrumentation works with this scheme.
+
+\subsection{Globals}
+
+via \texttt{accesses} and calling back to special case in translation of \texttt{Sym}
+
+\section{Translation of top-level constructs}
+
+\subsection{Functions}
+\subsection{Predicates}
+\subsection{Datatypes}
+\subsection{Lemmas}
+\subsection{Ghost arguments}
 
 
+\section{The C runtime library}
 
+Anything that isn't source-dependent, we have handwritten into the C runtime library.
+
+\subsection{Ghost types}
+
+Weird macros galore.
+
+\subsection{Allocator}
+
+\begin{enumerate}
+  \item Initially giant static array
+  \item Then bump allocator and free list allocator
+  \item Now bump allocator for specifications with known lifetimes (e.g. function-level spec's lifetime is until end of function execution/executable postcondition, loop invariant's lifetime is until the end of the single iteration of the loop thereafter)
+\end{enumerate}
+
+\section{Dealing with the C}
+
+\begin{enumerate}
+  \item Having to preprocess
+  \item What it was before: outputting several files, including \texttt{source.exec.c}, \texttt{cn.c}, \texttt{cn.h} etc to keep defs nice and tidy, but having to preprocess inside Fulminate meant we had to change to output a single file
+  \item Struct craziness, which I believe went away as a nice offshoot of having to preprocess and output a single giant file
+  \item C runtime library needing to be so baremetal (or in prev. section)
+\end{enumerate}
+
+\section{Usability}
+
+\subsection{Error messages}
+
+\textbf{TODO}: fix. Two types: source location information and instrumented file location.
+
+\subsection{Integration with existing debuggers}
+
+\texttt{gdb}, \texttt{lldb}. Look at what HK wrote in PLDI paper 
 
 \section{Partial specifications}
 
@@ -518,6 +577,7 @@ PS 29/04: Calling this section ``Evaluation'' is kind of underselling the import
 
 speculate on future directions (e.g. concurrency, VIP)
 
+\section{Future work}
 
 \bibliographystyle{plainnat}
 \bibliography{thesis}
