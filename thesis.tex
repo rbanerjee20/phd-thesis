@@ -143,6 +143,11 @@ specifications}
     description={Higher-order logic}
 }
 
+\ifclean
+\newcommand\TODO[1]{}
+\else
+\newcommand\TODO[1]{{\color{violet}TODO: #1}}
+\fi
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -191,64 +196,76 @@ specifications}
 
 \chapter{Introduction}
 
-PS 29/04: Intro can be long. Can have the Code-Spec-Test-Debug-Prove diagram! Doesn't need to be short and sweet if that's not how I want it to be.
+Ensuring the reliability of software systems has been a challenge since the advent of large-scale software development.
+%
+Critical bugs can be triggered, either by accident or intentionally by adversaries, with far-reaching consequences, the most extreme cases of which have led to the loss of billions of dollars and even of human life.
+% cite (in)famous cases of these here, e.g. Heartbleed, missiles
+Across the past several decades, a multitude of approaches have been put forward that aim to reduce or even eliminate the chance of such incidents occurring. 
 
-\section{Motivation}
-\section{Testing specifications}
+On one end of the spectrum, we have \emph{lightweight} methods, which usually involve some form of software testing (i.e.~checking properties over the concrete state at particular program points).\footnote{`Testing' is often overloaded to mean either the runtime checks of the properties themselves, or the generation of the concrete inputs that drive these checks. Here, we use `testing' to mean the former, and `test generation' to mean the latter; both of these are crucial to the overall quality of the testing.} In its simplest form, testing involves adding inline print and debug statements (e.g.~assertions) to a program, with some handwritten test case to drive the checks.  
+%
+%These properties can be implicit, for checking that some concrete implementation matches the developer's mental model of its expected behaviour; or explicit, where the user includes an inline assertion that a particular property over the concrete state holds. \TODO{this case split between implicit and explicit properties doesn't really work, because now the reasoning for the former just applies in both cases}\TODO{say something about specifications instead?}
 
-Some short text on what it means to test specifications and how the level of assurance and what it is ensuring differs from their conventional use in verification. (i.e. testing checks properties hold at those particular program points for concrete test cases -- can be used in conjunction with random test generation tooling -- whereas in proof, preconditions imply postconditions etc).
+\TODO{Put a diagram of the spectrum of assurance methods. Even just a horizontal line to start with is fine; can also do something like what's in the Hoare Logic slides}
 
-Mention history of testing specifications, dating back to 1970s -- Euclid, Anna.
+% PS 29/04: Intro can be long. Can have the Code-Spec-Test-Debug-Prove diagram! Doesn't need to be short and sweet if that's not how I want it to be.
 
-\subsection{Why test specifications?}
+% \section{Motivation}
+% \section{Testing specifications}
 
-Slide from LFCS/POPL talk -- flesh out. Also see first-year report, ``1.2 Objectives''.
+% Some short text on what it means to test specifications and how the level of assurance and what it is ensuring differs from their conventional use in verification. (i.e. testing checks properties hold at those particular program points for concrete test cases -- can be used in conjunction with random test generation tooling -- whereas in proof, preconditions imply postconditions etc).
 
-Code-Specify-Test-Debug-Prove? Maybe allude to it here (testing-and-debugging-specs-centred workflow), and have a separate chapter on it later (how Fulminate is used for that cycle and how it's amenable to it).
+% Mention history of testing specifications, dating back to 1970s -- Euclid, Anna.
 
-Comment on how this is not done much at all, and about the social gap between testing and verification communities.
+% \subsection{Why test specifications?}
+
+% Slide from LFCS/POPL talk -- flesh out. Also see first-year report, ``1.2 Objectives''.
+
+% Code-Specify-Test-Debug-Prove? Maybe allude to it here (testing-and-debugging-specs-centred workflow), and have a separate chapter on it later (how Fulminate is used for that cycle and how it's amenable to it).
+
+% Comment on how this is not done much at all, and about the social gap between testing and verification communities.
 
 
-\subsection{other notes}
+% \subsection{other notes}
 
-\begin{enumerate}
-  \item in defense of testing (dear formal methods community)
-  \item in defense of specification, checking richer mathematical properties, and possibly working up towards verification (dear software engineering and testing communities)
-  \item see PS specification paper, useful insights (and credit)
-  \item Differing correctness guarantees, and classic cost-benefit comparison
-  \item Social gap
-  \item Testing aids verification -- gradual assurance slope
-  \item Testing is useful even without verification!
-  \item NK 29/04: assertions that developers write in C usually only involve C-local variables; they care about performance a lot more than we do, and there's no abstraction/building of ghost state. Therefore, much shallower properties are checked on average. On the other hand, CN describes everything abstractly for the purpose of proof. Fulminate falls somewhere in between, and was not designed to be high-performance from the outset (see: ghost state construction and its overhead), but for running in real systems environments (e.g. EL2) this is something we care about. Also, Fulminate instruments everything it sees -- no limit/performance-based optimisation. It wants to check as much as it possibly can. 
-\end{enumerate}
+% \begin{enumerate}
+%   \item in defense of testing (dear formal methods community)
+%   \item in defense of specification, checking richer mathematical properties, and possibly working up towards verification (dear software engineering and testing communities)
+%   \item see PS specification paper, useful insights (and credit)
+%   \item Differing correctness guarantees, and classic cost-benefit comparison
+%   \item Social gap
+%   \item Testing aids verification -- gradual assurance slope
+%   \item Testing is useful even without verification!
+%   \item NK 29/04: assertions that developers write in C usually only involve C-local variables; they care about performance a lot more than we do, and there's no abstraction/building of ghost state. Therefore, much shallower properties are checked on average. On the other hand, CN describes everything abstractly for the purpose of proof. Fulminate falls somewhere in between, and was not designed to be high-performance from the outset (see: ghost state construction and its overhead), but for running in real systems environments (e.g. EL2) this is something we care about. Also, Fulminate instruments everything it sees -- no limit/performance-based optimisation. It wants to check as much as it possibly can. 
+% \end{enumerate}
 
-\section{A testing-centred workflow for writing specifications}
+% \section{A testing-centred workflow for writing specifications}
 
-\begin{figure}
-  \centering
-  \scalebox{0.55}{
-  \includegraphics{assets/code-spec-test-debug-prove.png}
-  }
-  \caption{Code-Specify-Test-Debug-Prove. \textbf{TODO}: redo, this is just copied from my Keynote}
-\end{figure}
+% \begin{figure}
+%   \centering
+%   \scalebox{0.55}{
+%   \includegraphics{assets/code-spec-test-debug-prove.png}
+%   }
+%   \caption{Code-Specify-Test-Debug-Prove. \textbf{TODO}: redo, this is just copied from my Keynote}
+% \end{figure}
 
-Code-Specify-Test-Debug-Prove. Generic here; can make concrete later with CN toolchain for C code.
+% Code-Specify-Test-Debug-Prove. Generic here; can make concrete later with CN toolchain for C code.
 
-Include diagram from Keynote slides. Make diagram more generic; our work has been without the Code part of the cycle, so I made diagram specific to the retroactive case, but it needs to be more general. (Diagram currently starts with ``Write partial specs'' which assumes a pre-existing codebase)
+% Include diagram from Keynote slides. Make diagram more generic; our work has been without the Code part of the cycle, so I made diagram specific to the retroactive case, but it needs to be more general. (Diagram currently starts with ``Write partial specs'' which assumes a pre-existing codebase)
 
-\section{Testing separation-logic specifications}
+% \section{Testing separation-logic specifications}
 
-Focus now on systems setting. Motivate why reliability of systems software so important (bug propagating upward, affecting all software running on top of it), and say most systems software is written in C. Look at Kayvan thesis related work briefly?
+% Focus now on systems setting. Motivate why reliability of systems software so important (bug propagating upward, affecting all software running on top of it), and say most systems software is written in C. Look at Kayvan thesis related work briefly?
 
-\subsection{Separation logic}
+% \subsection{Separation logic}
 
-History:
+% History:
 
-Hoare logic not good for reasoning about aliasing pointers. Number of inequalities blows up. Motivated creation of separation logic by Reynolds and O'Hearn. $p \mapsto v$, $A \ast B$, frame rule. See LFCS/Birmingham slides. Active research area, lots of research in it today. Link back to systems setting -- these operators make heap memory reasoning compositional which is great when reasoning about programs written in e.g. C or Rust.
+% Hoare logic not good for reasoning about aliasing pointers. Number of inequalities blows up. Motivated creation of separation logic by Reynolds and O'Hearn. $p \mapsto v$, $A \ast B$, frame rule. See LFCS/Birmingham slides. Active research area, lots of research in it today. Link back to systems setting -- these operators make heap memory reasoning compositional which is great when reasoning about programs written in e.g. C or Rust.
 
-\subsection{Executing separation logic}
+% \subsection{Executing separation logic}
 
-Comment on technical difficulty of executing $\ast$ operator and give example of how it blows up. Backtracking, arbitrary quantification over pointers, etc.
+% Comment on technical difficulty of executing $\ast$ operator and give example of how it blows up. Backtracking, arbitrary quantification over pointers, etc.
 
 \section{Thesis statement}
 
