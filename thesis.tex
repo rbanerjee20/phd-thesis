@@ -143,6 +143,8 @@ specifications}
     description={Higher-order logic}
 }
 
+\newif\ifclean\cleantrue
+
 \ifclean
 \newcommand\TODO[1]{}
 \else
@@ -202,7 +204,13 @@ Critical bugs can be triggered, either by accident or intentionally by adversari
 % cite (in)famous cases of these here, e.g. Heartbleed, missiles
 Across the past several decades, a multitude of approaches have been put forward that aim to reduce or even eliminate the chance of such incidents occurring. 
 
-On one end of the spectrum, we have \emph{lightweight} methods, which usually involve some form of software testing (i.e.~checking properties over the concrete state at particular program points).\footnote{`Testing' is often overloaded to mean either the runtime checks of the properties themselves, or the generation of the concrete inputs that drive these checks. Here, we use `testing' to mean the former, and `test generation' to mean the latter; both of these are crucial to the overall quality of the testing.} In its simplest form, testing involves adding inline print and debug statements (e.g.~assertions) to a program, with some handwritten test case to drive the checks.  
+One end of this spectrum is made up of \emph{lightweight} methods\TODO{Does this word still make sense with AI?! Isn't specification and, as a result, verification, much cheaper and lighter now?}, which often involve some form of software testing -- checking certain properties\TODO{These properties are either implicit or explicit. Implicit property -- running program doesn't result in a runtime error} hold at runtime for a given program when exercised using some inputs.\footnote{`Testing' is often overloaded to mean either the runtime checks of the properties themselves, or the generation of the concrete inputs that drive these checks. Both of these are crucial to the overall quality of the testing.}
+%
+The simplest example of this is unit testing -- manually-provided inputs for driving some function, often to exercise handwritten runtime assertions at particular program points --  
+% In its simplest form, testing involves adding inline print and debug statements (e.g.~assertions) to a program, with some handwritten test case to drive the checks. More sophisticated testing techniques involve strengthening the properties being runtime-checked, and/or the quality of the inputs used to drive the checks. The latter is a well-explored area, encompassing techniques such as fuzzing, property-based testing and symbolic execution, with some tradeoff between performance and how tailored the inputs are to the system under test.
+
+% (ranging from `dumber' black-box fuzzing, which quickly generates more randomised inputs to `smarter' white-box fuzzing, where constraints over the structure of the input are known in advance);
+symbolic execution and property-based testing,   Typically, the stronger the checks, the higher the cost of the testing, either in performance or in manual effort. 
 %
 %These properties can be implicit, for checking that some concrete implementation matches the developer's mental model of its expected behaviour; or explicit, where the user includes an inline assertion that a particular property over the concrete state holds. \TODO{this case split between implicit and explicit properties doesn't really work, because now the reasoning for the former just applies in both cases}\TODO{say something about specifications instead?}
 
