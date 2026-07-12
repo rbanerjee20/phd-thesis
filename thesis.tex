@@ -202,9 +202,18 @@ Ensuring the reliability of software systems has been a challenge since the adve
 %
 Critical bugs can be triggered, either by accident or intentionally by adversaries, with far-reaching consequences, the most extreme cases of which have led to the loss of billions of dollars and even of human life.
 % cite (in)famous cases of these here, e.g. Heartbleed, missiles
-Across the past several decades, a multitude of approaches have been put forward that aim to tackle this issue. These approaches vary across several axes, including: (1) their level of automation -- i.e.~whether they work on the software in question as-is, or require some further upfront effort\TODO{somehow express that latter can vary a lot -- e.g. inline assertions here and there vs complete specifications for verification. Maybe that comes in next para as I specialise to this case}; (2) the richness of the properties they can express and check; (3) their coverage of possible program paths, ranging from particular concrete executions to all arbitrary ones; (4) how integrable they are into conventional workflows -- whether incrementally, or at a particular stage of development, or not at all; and (5) how much they can be retrofitted to existing software. \TODO{Can 5 be subsumed by 4?} 
+Across the past several decades, a multitude of approaches have been put forward that aim to tackle this issue.
+%
+These approaches vary across several axes, including: (1) how automatable they are -- i.e.~whether they work on the software in question as-is\TODO{Implicit assumption of code-first? well, you need some software to check, right...}, or require some further upfront effort\TODO{somehow express that latter can vary a lot -- e.g. inline assertions here and there vs complete specifications for verification. Maybe that comes in next para as I specialise to this case}; (2) the richness of the properties they can express and check; (3) their coverage of possible program paths, ranging from particular concrete executions to all arbitrary ones; and (4) how integrable they are into conventional workflows -- whether incrementally, or at a particular stage of software development, or not at all.
 
-One end of this spectrum is made up of \emph{lightweight} methods\TODO{Does this word still make sense with AI?! Isn't specification and, as a result, verification, much cheaper and lighter now?}, which often involve some form of software testing -- checking certain properties\TODO{These properties are either implicit or explicit. Implicit property -- running program doesn't result in a runtime error} hold at runtime for a given program when exercised using some inputs.\footnote{`Testing' is often overloaded to mean either the runtime checks of the properties themselves, or the generation of the concrete inputs that drive these checks. Both of these are crucial to the overall quality of the testing.}
+Considering the first axis -- level of automation -- it is clear that approaches on either end of the spectrum are not mutually exclusive; rather, they complement one another and have distinct benefits. More concretely, tools that are fully automatic (e.g.~static and dynamic program analysers, fuzzers) rely on some notion of implicit specifications, ensuring properties such as memory safety and absence of undefined behaviour hold. These `push-button' tools are incredibly lightweight to use and eliminate entire classes of bugs, but the implicit nature of their specifications places an inherent limit on the richness of the properties they can check.
+
+TODO: Other end of the spectrum is full formal verification with explicit specifications. In the middle is testing (inline assertions, contract checking, \emph{specification-testing}, property-based testing --  but not fuzzing, we mention that earlier with program analysis tools)
+
+-----
+
+
+One end of this spectrum is made up of \emph{lightweight} methods, which often involve some form of software testing -- checking certain properties\TODO{These properties are either implicit or explicit. Implicit property -- running program doesn't result in a runtime error} hold at runtime for a given program when exercised using some inputs.\footnote{`Testing' is often overloaded to mean either the runtime checks of the properties themselves, or the generation of the concrete inputs that drive these checks. Both of these are crucial to the overall quality of the testing.}
 %
 The simplest example of this is unit testing -- manually-provided inputs for driving some function, often to exercise handwritten runtime assertions at particular program points --  
 % In its simplest form, testing involves adding inline print and debug statements (e.g.~assertions) to a program, with some handwritten test case to drive the checks. More sophisticated testing techniques involve strengthening the properties being runtime-checked, and/or the quality of the inputs used to drive the checks. The latter is a well-explored area, encompassing techniques such as fuzzing, property-based testing and symbolic execution, with some tradeoff between performance and how tailored the inputs are to the system under test.
@@ -216,13 +225,6 @@ symbolic execution and property-based testing,   Typically, the stronger the che
 
 \TODO{Mention single isolated approach and tool problem. Tackling having all of these in one place? One aiding the other? \emph{Do more work to bridge the two for my thesis?}}
 
-\begin{itemize}
-  \item Reliability of large-scale software systems -- big problem since advent of modern computing 
-  \item What kind of approaches are out there?
-  \begin{itemize}
-    \item Lightweight methods. Lightweight in terms of guarantees or upfront manual effort? Decide. I never know where to put static and dynamic analysis tools in this spectrum
-  \end{itemize}
-\end{itemize}
 
 \TODO{Put a diagram of the spectrum of assurance methods. Even just a horizontal line to start with is fine; can also do something like what's in the Hoare Logic slides}
 
