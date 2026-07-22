@@ -101,7 +101,6 @@
   showstringspaces=false,
 }
 
-
 \lstset{language=C}
 
 
@@ -474,7 +473,17 @@ This CN predicate differs from its classical analogue in several ways: it takes 
 
 This version of the \texttt{IntList} predicate looks executable, and it turns out that it is. 
 
-\section{something}
+\section{Executing \texttt{IntList}}
+
+We can now consider the following C implementation of a singly-linked list and its append operation, specified in CN using the \texttt{IntList} predicate we just defined:
+
+\TODO{fix C spacing}
+
+\TODO{Either add append function implementation and Seq datatype or note their absence explicitly}
+
+\begin{center}
+\lstinputlisting[language=CNC]{code_snippets/append.c}
+\end{center}
 
 
 
