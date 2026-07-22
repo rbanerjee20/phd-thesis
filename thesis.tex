@@ -47,6 +47,93 @@
 
 \usepackage{minted}
 
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.8]{beramono}
+
+\usepackage{listings}
+\usepackage{booktabs}
+
+
+% https://tex.stackexchange.com/questions/30504/how-can-i-properly-align-the-line-numbers-of-a-source-code-listing-with-the-marg
+
+\newlength{\MaxSizeOfLineNumbers}%
+\settowidth{\MaxSizeOfLineNumbers}{99}% Adjust to maximum number of lines
+\addtolength{\MaxSizeOfLineNumbers}{2ex}%
+
+\lstdefinestyle{scriptStyle}{%
+  basicstyle=\ttfamily\lst@ifdisplaystyle\scriptsize\fi,
+  keywordstyle=\ttfamily\lst@ifdisplaystyle\color{brown}\scriptsize\fi,
+  commentstyle=\ttfamily\lst@ifdisplaystyle\color{commentcolour}\scriptsize\fi,
+}
+
+% \lstset{
+%   % aboveskip=0pt,
+%   % belowskip=0pt,
+%   % xleftmargin=0pt,
+%   % framesep=0pt,
+%   basicstyle=\ttfamily,%\lst@ifdisplaystyle\scriptsize\fi,
+%   keywordstyle=\ttfamily,%\lst@ifdisplaystyle\color{brown}\scriptsize\fi,
+%   commentstyle=\ttfamily,%\lst@ifdisplaystyle\color{blue}\scriptsize\fi,
+%   % morecomment=[s][\color{blue}]{/*@}{@*/},
+%   % xleftmargin=5.0ex,
+%   % numberstyle=\tiny,
+%   % framexleftmargin=1em
+% }
+
+\definecolor{commentcolour}{RGB}{0,100,0}
+
+\lstset{
+%  aboveskip=0pt,
+%  belowskip=0pt,
+   xleftmargin=5mm,
+%  framesep=0pt,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\ttfamily\bfseries\color{black},
+  commentstyle=\ttfamily\color{commentcolour},
+%%   keywordstyle=\ttfamily\lst@ifdisplaystyle\bfseries\scriptsize\fi,
+%%   commentstyle=\ttfamily\lst@ifdisplaystyle\itshape\scriptsize\fi,
+  % morecomment=[s][\color{blue}]{/*@}{@*/},
+  % xleftmargin=5.0ex,
+  numbers=left,
+  numberstyle=\tiny,
+  % framexleftmargin=1em
+  escapeinside={!}{!},
+  showstringspaces=false,
+}
+
+
+\lstset{language=C}
+
+
+
+
+%%%%%%%%%%%% listings for CN, from Iris slides
+
+\lstdefinelanguage{CNC}{%
+  language     = C,
+  morekeywords={
+    Owned,
+    Block,
+    integer,
+    pointer, 
+    predicate, 
+    let, 
+    each, 
+    assert, 
+    instantiate, 
+    pack, 
+    unpack,
+    list,
+    function,
+    take,
+    tuple,
+    datatype,
+    requires,
+    ensures
+  },
+}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Thesis meta-information
 %%
@@ -218,9 +305,9 @@ For much of the past several decades, these approaches and tools have been large
 
 \medskip
 
-Lightweight testing and analysis techniques can provide more \emph{gradual} assurance of a system than traditional formal verification via explicit specifications, which is typically a slow, all-or-nothing process.\TODO{slow feedback loop, relying on proof tools and their performance and output, and requires complete specifications. Put it higher up} Crucially, testing the specifications \emph{themselves} while they are written allows concrete specification bugs to be quickly flagged to the user, who can then use these runtime counterexamples to refine the specifications they have written so far. This significantly eases the burden of specification-writing and (if desired) proof. (Note that the latter may or may not be desirable, depending on the given use case -- but testing still provides some assurance.) In addition, even if the user's mental model of the code's expected behaviour is correct, the implementation may still contain bugs, which specification-testing can also catch in the same lightweight manner.   
+\TODO{This is quite abrupt. Needs some sentence to bridge from previous para to this} Lightweight testing and analysis techniques can provide more \emph{gradual} assurance of a system than traditional formal verification via explicit specifications, which is typically a slow, all-or-nothing process.\TODO{slow feedback loop, relying on proof tools and their performance and output, and requires complete specifications. Put it higher up} Crucially, testing the specifications \emph{themselves} while they are written allows concrete specification bugs to be quickly flagged to the user, who can then use these runtime counterexamples to refine the specifications they have written so far. This significantly eases the burden of specification-writing and (if desired) proof. (Note that the latter may or may not be desirable, depending on the given use case -- but testing still provides some assurance.) In addition, even if the user's mental model of the code's expected behaviour is correct, the implementation may still contain bugs, which specification-testing can also catch in the same lightweight manner.   
 
-TODO: Write this para properly. In particular, more lightweight testing and analysis techniques (a) can inform spec-writing and proof and (b) might be sufficient on their own for certain use cases. Not everything needs to be verified! Testing might be enough sometimes! and (b) conversely, more principled/formally-rooted testing techniques (i.e.~those that check richer properties) can find the kinds of critical, edge-case bugs that simpler testing techniques would miss. Plus having a specification is really useful (see specification paper)
+TODO: Write this para properly. testing is great [DONE], and\ldots conversely, more principled/formally-rooted testing techniques (i.e.~those that check richer properties) can find the kinds of critical, edge-case bugs that simpler testing techniques would miss. Plus having a specification is really useful (see specification paper)
 
 \begin{enumerate}
   \item dear FM community: testing is cool and important
@@ -230,12 +317,13 @@ TODO: Write this para properly. In particular, more lightweight testing and anal
 TELL THAT TO THE LAST 50 YEARS OF FORMAL METHODS RESEARCH!
 
 
------
+Need to get to separation logic and C as well. All very high-level so far (as expected)
+
 
 
 
 %
-These properties can be implicit, for checking that some concrete implementation matches the developer's mental model of its expected behaviour; or explicit, where the user includes an inline assertion that a particular property over the concrete state holds. \TODO{this case split between implicit and explicit properties doesn't really work, because now the reasoning for the former just applies in both cases}\TODO{say something about specifications instead?}
+% These properties can be implicit, for checking that some concrete implementation matches the developer's mental model of its expected behaviour; or explicit, where the user includes an inline assertion that a particular property over the concrete state holds. \TODO{this case split between implicit and explicit properties doesn't really work, because now the reasoning for the former just applies in both cases}\TODO{say something about specifications instead?}
 
 \TODO{Mention single isolated approach and tool problem. Tackling having all of these in one place? One aiding the other? \emph{Do more work to bridge the two for my thesis?}}
 
@@ -336,27 +424,79 @@ See first-year report as a starting point.
 \end{enumerate}
 
 
+\chapter{A motivating example}
 
-\chapter{Example}
+% Goal: Reader should just be able to look at this chapter and know how Fulminate works at a high level.
 
-Do example with partial specifications. Include error messages, debugging with \texttt{lldb}, etc
+In this chapter, we take a look at how Fulminate works at a high level, using a classic separation logic example of a singly-linked list, with the list and its operations implemented in C and its specifications written using CN.
 
-\section{The CN separation-logic specification language}
+\section{The \texttt{IntList} predicate}
 
-Cover $p \mapsto v$ and \texttt{Owned}
-IntList example (should be in above spec example) and side-by-side comparison between standard SL formulae and CN representation. 
+First, consider the following separation-logic predicate \texttt{IntList}, which takes some pointer $p$ (which points to the head of some linked list in memory) and mathematical list $\alpha$ as inputs, asserting ownership over the entire list and that $\alpha$ is an abstract representation of the values in the list:
+
+\begin{align*}
+  \text{IntList}(p, \alpha) =\, &(p = \text{NULL} \land \alpha = \lbrack\rbrack)\\
+  &\lor (\exists{hd}, q, {tl}.\,p \mapsto ({hd}, q) \ast \text{IntList}(q, {tl}) \land \alpha = {hd} :: {tl})
+\end{align*}
+
+What would it mean to \emph{execute} this predicate as part of some function-level specification? Rather than proving that these properties hold statically for any arbitrary $p$ and $\alpha$, we want to check for some concrete values of $p$ and $\alpha$, and the corresponding concrete heap, that we can assert ownership over all nodes of the linked list, and that all of the expected logical properties hold. 
+
+However, this predicate does not look particularly executable on first glance.
+
+\begin{enumerate}
+  \item There is a disjunction, which might require backtracking depending on whether $p$ is the null-pointer or not. In this case, this is detectable early in the execution of the first disjunct, but for arbitrary disjunction, this is not guaranteed.
+  \item The second disjunct contains existential quantification over ${hd}$, $q$ and ${tl}$, which might require searching for values.
+  \item There is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap.
+\end{enumerate}
+  
+Now consider the same predicate, written in the CN specification language:
+
+\TODO{Make it pretty. Maybe put them side by side (repeat classical SL predicate) for readability purposes?}
+
+\begin{center}
+  \begin{lstlisting}[language=CNC]
+  predicate integer_list IntList (pointer p) {
+    if (p == NULL) {
+      return (Nil {});
+    }
+    else {
+      take node = Owned<struct node>(p);
+      take tl = IntList(node.next);
+      return (Cons {hd: node.x, tl: tl});
+    }
+  }
+  \end{lstlisting}
+\end{center}
+
+\TODO{Put line numbers to make it easy to follow along, without explaining whole spec language here}
+
+This CN predicate differs from its classical analogue in several ways: it takes the pointer $p$ as its only argument, it has an if-else statement that checks whether $p$ is NULL instead of using logical disjunction, and it constructs and returns the mathematical list as a CN datatype (corresponding to $\alpha$ in the classical presentation). Crucially, points-to assertions are written in CN using its builtin \texttt{Owned} predicate: $p \mapsto v$ is written as $\mathbf{take}\,\,v = \mathbf{Owned}(p)$, with CN's syntax restricting $v$ to be an output parameter here rather than an input that could be arbitrarily quantified over. The $\ast$ operator is encoded by CN's semicolons, ensuring each assertion holds for disjoint parts of the heap.
+
+This version of the \texttt{IntList} predicate looks executable, and it turns out that it is. 
+
+\section{something}
 
 
-\section{Writing partial CN specifications using Fulminate}
 
-Assuming we have a pre-existing C function to specify in this case.
+% Do example with partial specifications. Include error messages, debugging with \texttt{lldb}, etc
 
-Small spec example, using IntList. Explain CN semicolon is $\ast$. 
+% \section{The CN separation-logic specification language}
 
-Say Fulminate takes CN+C files, gives C file with checks in the expected places. Fulminate tracks ownership of stack-local and heap addresses; instruments access checks to ensure ownership of an address has been asserted properly before it is read from or written to.
+% Cover $p \mapsto v$ and \texttt{Owned}
+% IntList example (should be in above spec example) and side-by-side comparison between standard SL formulae and CN representation. 
 
-Show Fulminate runtime ownership error from partial spec, debug and fix up spec, run again.
 
+% \section{Writing partial CN specifications using Fulminate}
+
+% Assuming we have a pre-existing C function to specify in this case.
+
+% Small spec example, using IntList. Explain CN semicolon is $\ast$. 
+
+% Say Fulminate takes CN+C files, gives C file with checks in the expected places. Fulminate tracks ownership of stack-local and heap addresses; instruments access checks to ensure ownership of an address has been asserted properly before it is read from or written to.
+
+% Show Fulminate runtime ownership error from partial spec, debug and fix up spec, run again.
+
+\chapter{Design}
 
 \chapter{Formalisation}
 
