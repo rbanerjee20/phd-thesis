@@ -52,6 +52,7 @@
 
 \usepackage{listings}
 \usepackage{booktabs}
+\usepackage[inline]{enumitem}
 
 
 % https://tex.stackexchange.com/questions/30504/how-can-i-properly-align-the-line-numbers-of-a-source-code-listing-with-the-marg
@@ -305,7 +306,13 @@ For much of the past several decades, these approaches and tools have been large
 
 \medskip
 
-\TODO{This is quite abrupt. Needs some sentence to bridge from previous para to this} Lightweight testing and analysis techniques can provide more \emph{gradual} assurance of a system than traditional formal verification via explicit specifications, which is typically a slow, all-or-nothing process.\TODO{slow feedback loop, relying on proof tools and their performance and output, and requires complete specifications. Put it higher up} Crucially, testing the specifications \emph{themselves} while they are written allows concrete specification bugs to be quickly flagged to the user, who can then use these runtime counterexamples to refine the specifications they have written so far. This significantly eases the burden of specification-writing and (if desired) proof. (Note that the latter may or may not be desirable, depending on the given use case -- but testing still provides some assurance.) In addition, even if the user's mental model of the code's expected behaviour is correct, the implementation may still contain bugs, which specification-testing can also catch in the same lightweight manner.   
+The high assurance provided by formal verification is, by the nature of proof itself, an ``all-or-nothing'' result: little can be said about the correctness of a system until it has been proven in its entirety, which in turn requires the complete specification of the system (from the top level down to the intermediate and leaf functions) to have been provided upfront. In most past verification efforts, writing these specifications has comprised of the following steps: 
+\begin{enumerate*}[label=(\arabic*)]
+  \item something
+  \item something else
+  \item something more 
+\end{enumerate*}
+\TODO{slow feedback loop, relying on proof tools and their performance and output, and requires complete specifications. Put it higher up} Lightweight testing and analysis techniques can provide more \emph{gradual} assurance of such systems. Crucially, testing the specifications \emph{themselves} while they are written allows concrete specification bugs to be quickly flagged to the user, who can then use these runtime counterexamples to refine the specifications they have written so far. This significantly eases the burden of specification-writing and (if desired) proof. (Note that the latter may or may not be desirable, depending on the given use case -- but testing still provides some assurance.) In addition, even if the user's mental model of the code's expected behaviour is correct, the implementation may still contain bugs, which specification-testing can also catch in the same lightweight manner.   
 
 TODO: Write this para properly. testing is great [DONE], and\ldots conversely, more principled/formally-rooted testing techniques (i.e.~those that check richer properties) can find the kinds of critical, edge-case bugs that simpler testing techniques would miss. Plus having a specification is really useful (see specification paper)
 
