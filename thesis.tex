@@ -294,7 +294,13 @@ Critical bugs can be triggered, either by accident or intentionally by adversari
 % cite (in)famous cases of these here, e.g. Heartbleed, missiles
 Across the past several decades, a multitude of approaches have been put forward that aim to tackle this issue.
 %
-These approaches vary across several axes, including: (1) how automatable they are -- i.e.~whether they work on the software in question as-is\TODO{Implicit assumption of code-first? well, you need some software to check, right...}, or require some further upfront effort; (2) the richness of the properties they can express and check; (3) coverage of possible program paths, ranging from particular concrete executions to all arbitrary ones\TODO{This is just level of assurance, right?}; and (4) how integrable they are into conventional workflows -- whether incrementally, or at a particular stage of software development, or not at all.
+These approaches vary across several axes, including:
+\begin{enumerate*}[label=(\arabic*)]
+\item how automatable they are -- i.e.~whether they work on the software in question as-is\TODO{Implicit assumption of code-first? well, you need some software to check, right...}, or require some further upfront effort; 
+\item the richness of the properties they can express and check; 
+\item coverage of possible program paths, ranging from particular concrete executions to all arbitrary ones\TODO{This is just level of assurance, right?}; and
+\item how integrable they are into conventional workflows -- whether incrementally, or at a particular stage of software development, or not at all.
+\end{enumerate*}
 
 \TODO{PS 15/07: Might want to enumerate all possible axes in text, in intro (with subtitles, subsections, etc). Banerjee's hypercube\dots and take the top 15-20 tools you know and try to place them in the hypercube. You could make it a 3D cube if one of the axes can be sort-of squashed onto another. E.g.~2 and 3?!}
 
@@ -304,15 +310,20 @@ Consider the first axis -- level of automation. On one end of the spectrum, tool
 
 For much of the past several decades, these approaches and tools have been largely disjoint\footnote{with a few notable exceptions. TODO: cite Frama-C and others}, mostly due to the (regrettable) social gap between the testing and formal methods communities. In this thesis, I advocate that this need not be the case, and, indeed, should not be; testing and proof complement one another and have distinct benefits.
 
-\medskip
+% \medskip
 
-The high assurance provided by formal verification is, by the nature of proof itself, an ``all-or-nothing'' result: little can be said about the correctness of a system until it has been proven in its entirety, which in turn requires the complete specification of the system (from the top level down to the intermediate and leaf functions) to have been provided upfront. In most past verification efforts, writing these specifications has comprised of the following steps: 
+\section{The road to assurance need not be steep}
+\TODO{This assumes code-first. Rephrase to be more general}
+The high assurance provided by formal verification is, by the nature of proof itself, an ``all-or-nothing'' result: little can be said about the correctness of a system until it has been proven in its entirety, which in turn requires the complete specification of the system (from the top level down to the intermediate and leaf functions) to have been provided upfront. In most past verification efforts, the workflow for writing specifications would have involved:
 \begin{enumerate*}[label=(\arabic*)]
-  \item something
-  \item something else
-  \item something more 
+  \item attempting to write the complete specification for some function-to-be-verified, including its precondition, postcondition, loop invariants and proof hints;
+  \item running the proof tool of choice, and waiting to see if the proof succeeds or fails with some error;
+  \item in the failure case, trying to debug the specification using the provided error message; and
+  \item continuing this process until the proof has succeeded for all functions.
 \end{enumerate*}
-\TODO{slow feedback loop, relying on proof tools and their performance and output, and requires complete specifications. Put it higher up} Lightweight testing and analysis techniques can provide more \emph{gradual} assurance of such systems. Crucially, testing the specifications \emph{themselves} while they are written allows concrete specification bugs to be quickly flagged to the user, who can then use these runtime counterexamples to refine the specifications they have written so far. This significantly eases the burden of specification-writing and (if desired) proof. (Note that the latter may or may not be desirable, depending on the given use case -- but testing still provides some assurance.) In addition, even if the user's mental model of the code's expected behaviour is correct, the implementation may still contain bugs, which specification-testing can also catch in the same lightweight manner.   
+This feedback loop is at best inconvenient, and at worst inhibiting: it requires expert knowledge of formal methods and the proof tool of choice; it requires (guesses of) complete specifications to be provided upfront, before the proof tool can even be sensibly run; and it is innately reliant on the performance of the proof tool -- which tends to become unusably slow as the size and complexity of the specification grows. 
+
+Lightweight testing and analysis techniques can provide more gradual assurance of such systems. Crucially, testing the specifications \emph{themselves} while they are written allows concrete specification bugs to be quickly flagged to the user, who can then use these runtime counterexamples to refine the specifications they have written so far. This significantly eases the burden of specification-writing and (if desired) proof. (Note that the latter may or may not be desirable, depending on the given use case -- but testing still provides some assurance.) In addition, even if the user's mental model of the code's expected behaviour is correct, the implementation may still contain bugs, which specification-testing can also catch in the same lightweight manner.   
 
 TODO: Write this para properly. testing is great [DONE], and\ldots conversely, more principled/formally-rooted testing techniques (i.e.~those that check richer properties) can find the kinds of critical, edge-case bugs that simpler testing techniques would miss. Plus having a specification is really useful (see specification paper)
 
