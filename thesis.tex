@@ -474,9 +474,8 @@ However, this predicate does not look particularly executable on first glance.
   \item There is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap.
 \end{enumerate}
   
-Now consider the same predicate, written in the CN specification language:
+Now consider the same predicate, written in the CN specification language within some C file:
 
-\TODO{Make it pretty. Maybe put them side by side (repeat classical SL predicate) for readability purposes?}
 
 \begin{figure}[h]
   \begin{center}
@@ -507,9 +506,17 @@ Now consider the same predicate, written in the CN specification language:
   \label{fig:intlist-cn}
 \end{figure}
 
-This CN predicate differs from its classical analogue in several ways: it takes the pointer $p$ as its only argument, it has an if-else statement that checks whether $p$ is NULL instead of using logical disjunction, and it constructs and returns the mathematical list as a CN datatype (corresponding to $\alpha$ in the classical presentation). Crucially, points-to assertions are written in CN using its builtin \texttt{Owned} predicate: $p \mapsto v$ is written as $\mathbf{take}\,\,v = \mathbf{Owned}(p)$, with CN's syntax restricting $v$ to be an output parameter here rather than an input that could be arbitrarily quantified over. The $\ast$ operator is encoded by CN's semicolons, ensuring each assertion holds for disjoint parts of the heap.
+The CN predicate definition is on the left hand side, with auxilliary C and CN definitions on the right. The CN definitions are enclosed in ``magic comments'' ($/*@ \ldots @*/$), such that they can be parsed and desugared by the CN toolchain and treated like usual comments by any C compiler such as clang or gcc. 
 
-This version of the \texttt{IntList} predicate looks executable, and it turns out that it is. 
+\TODO{rename node variable to something else? it's confusing for the variable and the struct tag to have the same name}
+
+The \texttt{IntList} predicate signature on line 2 states that the predicate takes a single argument $p$ of generic pointer type, and returns a \texttt{datatype seq}, which is defined on lines 19-22 as a datatype with two constructors, \texttt{Nil} and \texttt{Cons}. The predicate first checks whether the pointer $p$ is null, returning the \texttt{Nil} constructor if that is the case (lines 3-5). Otherwise, it extracts the value stored at $p$ using CN's builtin \texttt{Owned} predicate, storing it in a new variable called \texttt{node} (line 7). (Note the angle brackets $\langle\ldots\rangle$, which denote the expected C type of $p$'s value -- here, this has type \texttt{struct node}, defined on lines 13-16 as a usual C singly-linked list with some \texttt{head} value and a \texttt{next} pointer to the rest of the list.) After that, \texttt{IntList} is called inductively on the \texttt{next} pointer of $p$'s value, with the associated mathematical list datatype stored in a new variable \texttt{tl} (line 8). Finally, the 32-bit integer \texttt{head} member of \texttt{node} (which we recall has type \texttt{struct node}) and the mathematical abstraction of the rest of the list are composed under the \texttt{Cons} constructor and returned (line 9).  
+
+\TODO{Following para might need to be rejigged slightly to improve flow}
+
+This CN predicate differs from its classical analogue in several ways: it takes the pointer $p$ as its only argument rather than both the pointer and its mathematical list representation $\alpha$; it has an if-else statement that checks whether $p$ is NULL instead of using logical disjunction to account for either case; and it constructs and returns the mathematical list $\alpha$ as a CN datatype. Crucially, points-to assertions are written in CN using its builtin \texttt{Owned} predicate: $p \mapsto v$ is written as $\texttt{take}\,\,v = \texttt{Owned}\langle\textit{ctype}\rangle(p)$, with CN's syntax restricting $v$ to be an output parameter here rather than an input that could be arbitrarily quantified over. The $\ast$ operator is encoded by CN's semicolons, ensuring each assertion holds for disjoint parts of the heap.
+
+This version of the \texttt{IntList} predicate \emph{looks} executable, and it turns out that it is. 
 
 \section{Executing \texttt{IntList}}
 
