@@ -314,7 +314,7 @@ For much of the past several decades, these approaches and tools have been large
 
 \section{The road to assurance need not be steep}
 \TODO{This assumes code-first. Rephrase to be more general}
-The high assurance provided by formal verification is, by the nature of proof itself, an ``all-or-nothing'' result: little can be said about the correctness of a system until it has been proven in its entirety, which in turn requires the complete specification of the system (from the top level down to the intermediate and leaf functions) to have been provided upfront. In most past verification efforts, the workflow for writing specifications would have involved:
+The high assurance provided by formal verification is, by the nature of proof itself, an ``all-or-nothing'' result: little can be said about the correctness of a system until it has been proven in its entirety, which in turn requires the complete specification of the system (from the top level down to the intermediate and leaf functions) to have been provided upfront. In most past verification efforts, the workflow for writing specifications has involved:
 \begin{enumerate*}[label=(\arabic*)]
   \item attempting to write the complete specification for some function-to-be-verified, including its precondition, postcondition, loop invariants and proof hints;
   \item running the proof tool of choice, and waiting to see if the proof succeeds or fails with some error;
@@ -325,7 +325,7 @@ This feedback loop is at best inconvenient, and at worst inhibiting: it requires
 
 Lightweight testing and analysis techniques can provide more \emph{gradual} assurance of such systems. This includes executing specifications at runtime -- i.e.~checking whether specification properties hold at the expected program points when exercised using some concrete inputs. For example, executing the precondition of some function $f$ would involve checking its properties hold on entry to $f$ (before executing $f$'s body), for some concrete instantiations of $f$'s arguments. (Here, the purpose of the specification has subtly changed: rather than needing to hold for all arbitrary executions, and for earlier specifications (e.g.~preconditions) needing to imply later ones (e.g.~postconditions), all that is required is for the specifications to hold at particular program points for some particular concrete inputs).  Specification-testing provides a number of benefits: testing is, by nature, much faster than proof, and allows the user to write and test their \emph{partial}, in-progress specifications as they are writing them. These specifications could be partial with regards to the full specification of a given function (e.g.~an inline assertion, or part of a precondition), or across function boundaries -- in the early stages of specification-writing, there would almost certainly be a mix of specified and unspecified functions in the call stack of a given test case. Testing is also arguably more integrable (in the first instance) with standard developer test-debug workflows than full-fledged proof.
 
-Crucially, testing these specifications while they are written allows concrete specification bugs to be quickly flagged to the user, who can then use these runtime counterexamples to refine the specifications they have written so far. This significantly eases the burden of specification-writing and (if desired) proof. (Note that the latter may or may not be desirable, depending on the given use case -- but testing still provides some assurance.) In addition, even if the user's mental model of the code's expected behaviour is correct, the implementation may still contain bugs, which specification-testing can also catch in the same lightweight manner.   
+Crucially, testing these specifications while they are written allows concrete bugs in the specifications \emph{themselves} to be quickly flagged to the user, who can then use these runtime counterexamples to refine the specifications they have written so far. This significantly eases the burden of specification-writing and (if desired) proof. (Note that the latter may or may not be the end-goal, depending on the given use case -- but testing still provides some assurance.) In addition, even if the user's mental model of the code's expected behaviour is correct, the implementation may still contain bugs, which specification-testing can also catch in the same lightweight manner.   
 
 TODO: Write this para properly. testing is great [DONE], and\ldots conversely, more principled/formally-rooted testing techniques (i.e.~those that check richer properties) can find the kinds of critical, edge-case bugs that simpler testing techniques would miss. Plus having a specification is really useful (see specification paper)
 
@@ -454,10 +454,15 @@ In this chapter, we take a look at how Fulminate works at a high level, using a 
 
 First, consider the following separation-logic predicate \texttt{IntList}, which takes some pointer $p$ (which points to the head of some linked list in memory) and mathematical list $\alpha$ as inputs, asserting ownership over the entire list and that $\alpha$ is an abstract representation of the values in the list:
 
-\begin{align*}
+\begin{figure}[h]
+  \vspace{-0.8em}
+  \begin{align*}
   \text{IntList}(p, \alpha) =\, &(p = \text{NULL} \land \alpha = \lbrack\rbrack)\\
   &\lor (\exists{hd}, q, {tl}.\,p \mapsto ({hd}, q) \ast \text{IntList}(q, {tl}) \land \alpha = {hd} :: {tl})
-\end{align*}
+  \end{align*}
+  \vspace{-2em}
+\end{figure}
+
 
 What would it mean to \emph{execute} this predicate as part of some function-level specification? Rather than proving that these properties hold statically for any arbitrary $p$ and $\alpha$, we want to check for some concrete values of $p$ and $\alpha$, and the corresponding concrete heap, that we can assert ownership over all nodes of the linked list, and that all of the expected logical properties hold. 
 
@@ -473,22 +478,35 @@ Now consider the same predicate, written in the CN specification language:
 
 \TODO{Make it pretty. Maybe put them side by side (repeat classical SL predicate) for readability purposes?}
 
-\begin{center}
-  \begin{lstlisting}[language=CNC]
-  predicate integer_list IntList (pointer p) {
-    if (p == NULL) {
-      return (Nil {});
-    }
-    else {
-      take node = Owned<struct node>(p);
-      take tl = IntList(node.next);
-      return (Cons {hd: node.x, tl: tl});
-    }
-  }
-  \end{lstlisting}
-\end{center}
+\begin{figure}[h]
+  \begin{center}
+    \begin{minipage}[t]{.25\textwidth}
+      \vspace{-5.65em}
+      \lstset{
+      numbers=left,
+      firstnumber=1,
+      numberfirstline=true
+      }
+      \vspace{0.2em}
 
-\TODO{Put line numbers to make it easy to follow along, without explaining whole spec language here}
+      \scalebox{0.8}{\lstinputlisting[language=CNC, lastline=12]{code_snippets/intlist.cn.c}}
+    \end{minipage}
+    %
+    %
+    \hspace*{8.5\baselineskip}
+    \begin{minipage}[t]{.3\textwidth}
+      \lstset{
+      numbers=left,
+      firstnumber=13,
+      numberfirstline=true
+      }
+      \scalebox{0.8}{\lstinputlisting[language=CNC,firstline=13]{code_snippets/intlist.cn.c}}
+    \end{minipage}
+    % \vspace*{0.8\baselineskip}
+  \end{center}
+  \vspace*{-4mm}
+  \label{fig:intlist-cn}
+\end{figure}
 
 This CN predicate differs from its classical analogue in several ways: it takes the pointer $p$ as its only argument, it has an if-else statement that checks whether $p$ is NULL instead of using logical disjunction, and it constructs and returns the mathematical list as a CN datatype (corresponding to $\alpha$ in the classical presentation). Crucially, points-to assertions are written in CN using its builtin \texttt{Owned} predicate: $p \mapsto v$ is written as $\mathbf{take}\,\,v = \mathbf{Owned}(p)$, with CN's syntax restricting $v$ to be an output parameter here rather than an input that could be arbitrarily quantified over. The $\ast$ operator is encoded by CN's semicolons, ensuring each assertion holds for disjoint parts of the heap.
 
