@@ -219,7 +219,9 @@ My acknowledgements\ldots
 
 % Peter and Neel
 % Kayvan. Christopher, Dhruv, Hiro, David
+% Lise + Cambridge Trust
 % Saljuk
+% Waterstone's, Harvey's
 % Parents
 
 
@@ -448,11 +450,22 @@ See first-year report as a starting point.
 
 % Goal: Reader should just be able to look at this chapter and know how Fulminate works at a high level.
 
-In this chapter, we take a look at how Fulminate works at a high level, using a classic separation logic example of a singly-linked list, with the list and its operations implemented in C and its specifications written using CN.
+In this chapter, we take a look at how Fulminate works at a high level, using a classic separation logic example of a singly-linked list, with the list and its operations implemented in C and its specifications written using CN. TODO: rewrite once section has clearer shape
+
+New section outline (?):
+
+\begin{itemize}
+  \item Start with the C you want to specify/test
+  \item Then go to separation-logic predicate you'd like to write
+  \item Then show CN
+  \item Then the rest, executing in Fulm, writing spec in CN and testing in Fulm. Is that where we show the Fulm output? Need to show the pre and postcondition code and where injection is happening, but also the actual \texttt{IntList} predicate in C and how it just easily translates to that
+\end{itemize}
 
 \section{The \texttt{IntList} predicate}
 
-First, consider the following separation-logic predicate \texttt{IntList}, which takes some pointer $p$ (which points to the head of some linked list in memory) and mathematical list $\alpha$ as inputs, asserting ownership over the entire list and that $\alpha$ is an abstract representation of the values in the list:
+\subsection{\texttt{IntList}, in classical separation logic}
+
+First, consider the following separation-logic predicate \texttt{IntList}:
 
 \begin{figure}[h]
   \vspace{-0.8em}
@@ -463,8 +476,9 @@ First, consider the following separation-logic predicate \texttt{IntList}, which
   \vspace{-2em}
 \end{figure}
 
+This predicate takes two inputs: a pointer $p$ that is either the null pointer, or points to the head of some linked list in memory, and a mathematical list $\alpha$, an abstract representation of the linked list's values. In the case where $p$ is not null, this predicate asserts ownership over the entire list one node at a time, via the points-to assertion and the recursive call to \texttt{IntList}.
 
-What would it mean to \emph{execute} this predicate as part of some function-level specification? Rather than proving that these properties hold statically for any arbitrary $p$ and $\alpha$, we want to check for some concrete values of $p$ and $\alpha$, and the corresponding concrete heap, that we can assert ownership over all nodes of the linked list, and that all of the expected logical properties hold. 
+What would it mean to \emph{execute} this predicate as part of some function-level specification? Rather than proving that these properties hold statically for any arbitrary $p$ and $\alpha$, we want to check for some concrete values of $p$ and $\alpha$, and the corresponding concrete heap, that we can assert the correct ownership over all nodes of the linked list, and that all of the expected logical properties hold. 
 
 However, this predicate does not look particularly executable on first glance.
 
@@ -474,7 +488,7 @@ However, this predicate does not look particularly executable on first glance.
   \item There is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap.
 \end{enumerate}
   
-Now consider the same predicate, written in the CN specification language within some C file:
+Now consider the same predicate, written in the CN specification language:
 
 
 \begin{figure}[h]
@@ -510,7 +524,7 @@ The CN predicate definition is on the left hand side, with auxilliary C and CN d
 
 \TODO{rename node variable to something else? it's confusing for the variable and the struct tag to have the same name}
 
-The \texttt{IntList} predicate signature on line 2 states that the predicate takes a single argument $p$ of generic pointer type, and returns a \texttt{datatype seq}, which is defined on lines 19-22 as a datatype with two constructors, \texttt{Nil} and \texttt{Cons}. The predicate first checks whether the pointer $p$ is null, returning the \texttt{Nil} constructor if that is the case (lines 3-5). Otherwise, it extracts the value stored at $p$ using CN's builtin \texttt{Owned} predicate, storing it in a new variable called \texttt{node} (line 7). (Note the angle brackets $\langle\ldots\rangle$, which denote the expected C type of $p$'s value -- here, this has type \texttt{struct node}, defined on lines 13-16 as a usual C singly-linked list with some \texttt{head} value and a \texttt{next} pointer to the rest of the list.) After that, \texttt{IntList} is called inductively on the \texttt{next} pointer of $p$'s value, with the associated mathematical list datatype stored in a new variable \texttt{tl} (line 8). Finally, the 32-bit integer \texttt{head} member of \texttt{node} (which we recall has type \texttt{struct node}) and the mathematical abstraction of the rest of the list are composed under the \texttt{Cons} constructor and returned (line 9).  
+The \texttt{IntList} predicate signature on line 2 states that the predicate takes a single argument $p$ of generic pointer type, and returns a \texttt{datatype seq}, which is defined on lines 19-22 as a CN datatype with two constructors, \texttt{Nil} and \texttt{Cons}. The predicate first checks whether the pointer $p$ is null, returning the \texttt{Nil} constructor if that is the case (lines 3-5). Otherwise, it extracts the value stored at $p$ using CN's builtin \texttt{Owned} predicate, storing it in a new variable called \texttt{node} (line 7). (Note the angle brackets $\langle\ldots\rangle$, which denote the expected C type of $p$'s value -- here, this has type \texttt{struct node}, defined on lines 13-16 as a usual C singly-linked list with some \texttt{head} value and a \texttt{next} pointer to the rest of the list.) After that, \texttt{IntList} is called inductively on the \texttt{next} pointer of $p$'s value, with the associated mathematical list datatype stored in a new variable \texttt{tl} (line 8). Finally, the 32-bit integer \texttt{head} member of \texttt{node} (which we recall has type \texttt{struct node}) and the mathematical abstraction of the rest of the list are composed under the \texttt{Cons} constructor and returned (line 9).  
 
 \TODO{Following para might need to be rejigged slightly to improve flow}
 
@@ -519,6 +533,9 @@ This CN predicate differs from its classical analogue in several ways: it takes 
 This version of the \texttt{IntList} predicate \emph{looks} executable, and it turns out that it is. 
 
 \section{Executing \texttt{IntList}}
+
+
+\section{Writing and testing specifications using Fulminate}
 
 We can now consider the following C implementation of a singly-linked list and its append operation, specified in CN using the \texttt{IntList} predicate we just defined:
 
