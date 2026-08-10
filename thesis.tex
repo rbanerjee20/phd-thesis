@@ -452,7 +452,7 @@ See first-year report as a starting point.
 
 % In this chapter, we consider a typical singly-linked list implemented in C and one of its operations, demonstrating how one can use Fulminate to gradually specify and verify the latter. 
 
-In this chapter, we take a look at how Fulminate works at a high level, using a classic separation logic example of a singly-linked list, with the list and its operations implemented in C and its specifications written using CN. 
+In this chapter, we take a look at how Fulminate works at a high level, using a classic separation logic example of a singly-linked list, with the list and its operations implemented in C and its specifications written using CN. TODO: rewrite once chapter done
 
 % {\color{violet}
 % New section outline (?):
@@ -499,7 +499,7 @@ Now consider the following \texttt{append} operation on two such singly-linked l
 
 This takes two arguments of type \texttt{struct node}, \texttt{xs} and \texttt{ys}. If \texttt{xs} is the null pointer, the function returns \texttt{ys}; otherwise, it traverses \texttt{xs} through to its last element, and sets the \texttt{next} pointer of that element to be \texttt{ys}.
 
-To get higher assurance that this code behaves the way we expect it to, we might like to test it, or verify it, or both. We wish to describe that certain \emph{functional} properties hold (e.g.~what the integer elements of the returned, concatenated list are in relation to the input lists); since this is low-level C code that involves explicit pointers, we wish to describe \emph{ownership} properties as well -- here, the structure of the lists in memory on entry to and exit from the function. For capturing both desired kinds of properties, separation logic comes to the rescue.
+To get higher assurance that this code behaves the way we expect it to, we might like to test it, or verify it, or both. We wish to describe that certain \emph{functional} properties hold (e.g.~what the integer elements of the returned, concatenated list are in relation to the elements of the input lists). In addition, since this is low-level C code that involves explicit pointers, we wish to describe \emph{ownership} properties as well -- here, we care especially about the structure of the lists in memory on entry to and exit from the function. For capturing both desired kinds of properties, separation logic comes to the rescue.
 
 
 
@@ -507,7 +507,7 @@ To get higher assurance that this code behaves the way we expect it to, we might
 
 % \subsection{\texttt{IntList}, in classical separation logic}
 
-First, consider the following separation-logic predicate \texttt{IntList}:
+To formally describe a linked list of the shape we just saw, consider the following separation-logic predicate, \texttt{IntList}:
 
 \begin{figure}[h]
   \vspace{-0.8em}
@@ -520,15 +520,6 @@ First, consider the following separation-logic predicate \texttt{IntList}:
 
 This predicate takes two inputs: a pointer $p$ that is either the null pointer, or points to the head of some linked list in memory, and a mathematical list $\alpha$, an abstract representation of the linked list's values. In the case where $p$ is not null, this predicate asserts ownership over the entire list one node at a time, via the points-to assertion and the recursive call to \texttt{IntList}.
 
-What would it mean to \emph{execute} this predicate as part of some function-level specification? Rather than proving that these properties hold statically for any arbitrary $p$ and $\alpha$, we want to check for some concrete values of $p$ and $\alpha$, and the corresponding concrete heap, that we can assert the correct ownership over all nodes of the linked list, and that all of the expected logical properties hold. 
-
-However, this predicate does not look particularly executable on first glance.
-
-\begin{enumerate}
-  \item There is a disjunction, which might require backtracking depending on whether $p$ is the null-pointer or not. In this case, this is detectable early in the execution of the first disjunct, but for arbitrary disjunction, this is not guaranteed.
-  \item The second disjunct contains existential quantification over ${hd}$, $q$ and ${tl}$, which might require searching for values.
-  \item There is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap.
-\end{enumerate}
   
 Now consider the same predicate, written in the CN specification language:
 
@@ -572,9 +563,21 @@ The \texttt{IntList} predicate signature on line 2 states that the predicate tak
 
 This CN predicate differs from its classical analogue in several ways: it takes the pointer $p$ as its only argument rather than both the pointer and its mathematical list representation $\alpha$; it has an if-else statement that checks whether $p$ is NULL instead of using logical disjunction to account for either case; and it constructs and returns the mathematical list $\alpha$ as a CN datatype. Crucially, points-to assertions are written in CN using its builtin \texttt{Owned} predicate: $p \mapsto v$ is written as $\texttt{take}\,\,v = \texttt{Owned}\langle\textit{ctype}\rangle(p)$, with CN's syntax restricting $v$ to be an output parameter here rather than an input that could be arbitrarily quantified over. The $\ast$ operator is encoded by CN's semicolons, ensuring each assertion holds for disjoint parts of the heap.
 
-This version of the \texttt{IntList} predicate \emph{looks} executable, and it turns out that it is. 
+
 
 \section{Executing \texttt{IntList}}
+
+This version of the \texttt{IntList} predicate \emph{looks} executable, and it turns out that it is. 
+
+What would it mean to \emph{execute} this predicate as part of some function-level specification? Rather than proving that these properties hold statically for any arbitrary $p$ and $\alpha$, we want to check for some concrete values of $p$ and $\alpha$, and the corresponding concrete heap, that we can assert the correct ownership over all nodes of the linked list, and that all of the expected logical properties hold. 
+
+However, this predicate does not look particularly executable on first glance.
+
+\begin{enumerate}
+  \item There is a disjunction, which might require backtracking depending on whether $p$ is the null-pointer or not. In this case, this is detectable early in the execution of the first disjunct, but for arbitrary disjunction, this is not guaranteed.
+  \item The second disjunct contains existential quantification over ${hd}$, $q$ and ${tl}$, which might require searching for values.
+  \item There is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap.
+\end{enumerate}
 
 
 \section{Writing and testing specifications using Fulminate}
