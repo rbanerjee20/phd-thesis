@@ -6,12 +6,12 @@ predicate (datatype seq) IntList (pointer p) {
     else {
         take node = Owned<struct node>(p);
         take tl = IntList(node.next);
-        return (Cons {hd: node.head, tl: tl});
+        return (Cons {hd: node.val, tl: tl});
     }
 }
 @*/
 struct node {
-  int head;
+  int val;
   struct node* next;
 };
 

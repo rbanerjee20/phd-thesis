@@ -473,7 +473,7 @@ In this chapter, we take a look at how Fulminate works at a high level, using a 
 
 % TODO: explain linked-list struct and imperative (non-recursive) implementation -- idiomatic C. Segue into needing \texttt{IntList} predicate to specify this.
 
-\section{A singly-linked list, in C}
+\section{A singly-linked list, in C}\label{sec:linked-list-in-c}
 
 Consider the following struct definition in C, representing a singly-linked list: 
 
@@ -520,11 +520,8 @@ To formally describe a linked list of the shape we just saw, consider the follow
 
 This predicate takes two inputs: a pointer $p$ that is either the null pointer, or points to the head of some linked list in memory, and a mathematical list $\alpha$, an abstract representation of the linked list's values. In the case where $p$ is not null, this predicate asserts ownership over the entire list one node at a time, via the points-to assertion and the recursive call to \texttt{IntList}.
 
-  
-Now consider the same predicate, written in the CN specification language:
 
-
-\begin{figure}[h]
+\begin{figure}[h!]
   \begin{center}
     \begin{minipage}[t]{.28\textwidth}
       \vspace{-6.2em}
@@ -550,10 +547,11 @@ Now consider the same predicate, written in the CN specification language:
     % \vspace*{0.8\baselineskip}
   \end{center}
   \vspace*{-4mm}
+  \caption{The \texttt{IntList} predicate, written in the CN specification language. The CN definitions are enclosed in magic comments {\color{commentcolour}$/*@ \ldots @*/$} (lines 1-12, 18-23). The \texttt{IntList} predicate definition relies on the the C \texttt{struct node} definition (lines 13-16), which is the same as the one introduced in Section~\ref{sec:linked-list-in-c}.}
   \label{fig:intlist-cn}
 \end{figure}
 
-The CN predicate definition is on the left hand side, with auxilliary C and CN definitions on the right. The CN definitions are enclosed in ``magic comments'' ($/*@ \ldots @*/$), such that they can be parsed and desugared by the CN toolchain and treated like usual comments by any C compiler such as clang or gcc. 
+Now consider the same predicate, written in the CN specification language, as shown in Fig.~\ref{fig:intlist-cn}. The CN predicate definition is on the left hand side, with auxilliary C and CN definitions on the right. The CN definitions are enclosed in ``magic comments'' ({\color{commentcolour}$/*@ \ldots @*/$}), such that they can be parsed and desugared by the CN toolchain and treated like usual comments by any C compiler such as clang or gcc. 
 
 \TODO{rename node variable to something else? it's confusing for the variable and the struct tag to have the same name}
 
