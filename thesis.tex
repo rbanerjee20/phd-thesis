@@ -501,7 +501,7 @@ This takes two arguments of type \texttt{struct node}, \texttt{xs} and \texttt{y
 
 To get higher assurance that this code behaves the way we expect it to, we might like to test it, or verify it, or both; this might naturally lead us towards wanting to write a specification for this function. 
 
-\section{Specifying \texttt{list\_append}}
+\section{Specification desiderata}
 
 Ideally, we would like our specification for \texttt{list\_append} to:
 
@@ -511,7 +511,9 @@ Ideally, we would like our specification for \texttt{list\_append} to:
   \item Be \emph{executable} for the purpose of testing, but also usable for verification if desired. The executability of the specification is important not just for standalone testing of the C function, but also for being able to test the specification itself as we write it in an incremental fashion.
 \end{enumerate}
 
-The first goal is achievable using Hoare logic, but the second is not -- for tractable ownership reasoning, separation logic is needed. Thus, for the third goal to also hold, the separation-logic specification we write for \texttt{list\_append} must be executable -- and this is not obviously possible on first glance. 
+The first goal is achievable using Hoare logic, but the second is not -- for tractable ownership reasoning, separation logic is needed. Thus, for the third goal to also hold, the separation-logic specification we write for \texttt{list\_append} must be executable -- and this is not obviously possible on first glance, as we explain in the next section. 
+
+\section{Executing separation-logic specifications}
 
 \subsection{Classical separation logic is not executable}
 
@@ -535,10 +537,10 @@ However, this predicate does not look particularly executable on first glance.
 \begin{enumerate}
   \item There is a disjunction, which might require backtracking depending on whether $p$ is the null-pointer or not. In this case, this is detectable early in the execution of the first disjunct, but for arbitrary disjunction, this is not guaranteed.
   \item The second disjunct contains existential quantification over ${hd}$, $q$ and ${tl}$, which might require searching for values.
-  \item There is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap.
+  \item There is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap, with a heap of size $n$ requiring $2^n$ possible splittings to be searched.
 \end{enumerate}
 
-TODO: finish up this section somehow
+Thus, executing a classical separation-logic specification is, in the general case, computationally infeasible. The next section describes how carefully restricting the logic can eliminate these barriers to executability.
 
 
 \begin{figure}[h]
@@ -583,15 +585,61 @@ The \texttt{IntList} predicate signature on line 2 states that the predicate tak
 
 This CN predicate differs from its classical analogue in several ways: it takes the pointer $p$ as its only argument rather than both the pointer and its mathematical list representation $\alpha$; it has an if-else statement that checks whether $p$ is NULL instead of using logical disjunction to account for either case; and it constructs and returns the mathematical list $\alpha$ as a CN datatype. Crucially, points-to assertions are written in CN using its builtin \texttt{Owned} predicate: $p \mapsto v$ is written as $\texttt{take}\,\,v = \texttt{Owned}\langle\textit{ctype}\rangle(p)$, with CN's syntax restricting $v$ to be an output parameter here rather than an input that could be arbitrarily quantified over. The $\ast$ operator is encoded by CN's semicolons, ensuring each assertion holds for disjoint parts of the heap.
 
-This version of the \texttt{IntList} predicate \emph{looks} executable, and it turns out that it is. 
+This version of the \texttt{IntList} predicate \emph{looks} executable, and it turns out that it is. CN's restrictive syntax, originally designed to make the CN proof tool's automation more predictable, is exactly what enables it to be executed -- and this is what Fulminate sets out to do.
+
+\subsection{Fulminate executes CN specifications}
+
+Fulminate is a tool that takes a C file with CN annotations, and transforms these into C runtime checks, producing an instrumented C file with executable separation-logic specification checks. For example, Fulminate takes the CN \texttt{IntList} example in Fig.~\ref{fig:intlist-cn} as input and produces the C code in Figs~\ref{fig:intlist-fulm-datatype-defs} and \ref{fig:intlist-fulm}.
+
+\begin{figure}[h]
+  \begin{center}
+    \begin{minipage}[t]{.18\textwidth}
+      % \vspace{-6.2em}
+      \lstset{
+      numbers=left,
+      firstnumber=1,
+      numberfirstline=true
+      }
+      \vspace{0.2em}
+      \lstinputlisting[language=CNC, firstline=5, lastline=20]{code_snippets/intlist.cn.exec.c}
+    \end{minipage}
+    %
+    %
+    \hspace*{8.5\baselineskip}
+    \begin{minipage}[t]{.3\textwidth}
+      \lstset{
+      numbers=left,
+      firstnumber=17,
+      numberfirstline=true
+      }
+      \lstinputlisting[language=CNC,firstline=22, lastline=38]{code_snippets/intlist.cn.exec.c}
+    \end{minipage}
+    % \vspace*{0.8\baselineskip}
+  \end{center}
+  \vspace*{-4mm}
+  \caption{Top-level type definitions produced by Fulminate when applied to CN \texttt{IntList} example.}
+  \label{fig:intlist-fulm-datatype-defs}
+\end{figure}
+
+\begin{figure}[h!]
+  \begin{center}
+  \lstset{
+    numbers=left,
+    firstnumber=35,
+    numberfirstline=true
+  }
+  \lstinputlisting[language=C, firstline=40, lastline=59, breaklines]{code_snippets/intlist.cn.exec.c}
+  \end{center}
+  \caption{Fulminate-translated C function definition of the CN \texttt{IntList} predicate.}
+  \label{fig:intlist-fulm}
+\end{figure}
 
 
-\section{Executing \texttt{IntList}}
 
 
+% \section{Executing \texttt{IntList}}
 
-
-\section{Writing and testing specifications using Fulminate}
+\section{Writing and testing a specification for \texttt{list\_append}, using Fulminate}
 
 We can now consider the following C implementation of a singly-linked list and its append operation, specified in CN using the \texttt{IntList} predicate we just defined:
 
@@ -601,9 +649,11 @@ We can now consider the following C implementation of a singly-linked list and i
 
 \TODO{Check this new imperative implementation actually works with CN and Fulminate, with same spec}
 
-\begin{center}
-\lstinputlisting[language=CNC]{code_snippets/append.cn.c}
-\end{center}
+\begin{figure}
+  \begin{center}
+  \lstinputlisting[language=CNC]{code_snippets/append.cn.c}
+  \end{center}
+\end{figure}
 
 
 

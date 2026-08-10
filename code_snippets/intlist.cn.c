@@ -1,5 +1,5 @@
 /*@
-predicate (datatype seq) IntList (pointer p) {
+predicate [rec] (datatype seq) IntList (pointer p) {
     if (p == NULL) {
         return (Nil {});
     }
