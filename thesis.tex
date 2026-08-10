@@ -450,20 +450,62 @@ See first-year report as a starting point.
 
 % Goal: Reader should just be able to look at this chapter and know how Fulminate works at a high level.
 
-In this chapter, we take a look at how Fulminate works at a high level, using a classic separation logic example of a singly-linked list, with the list and its operations implemented in C and its specifications written using CN. TODO: rewrite once section has clearer shape
+% In this chapter, we consider a typical singly-linked list implemented in C and one of its operations, demonstrating how one can use Fulminate to gradually specify and verify the latter. 
 
-New section outline (?):
+In this chapter, we take a look at how Fulminate works at a high level, using a classic separation logic example of a singly-linked list, with the list and its operations implemented in C and its specifications written using CN. 
 
-\begin{itemize}
-  \item Start with the C you want to specify/test
-  \item Then go to separation-logic predicate you'd like to write
-  \item Then show CN
-  \item Then the rest, executing in Fulm, writing spec in CN and testing in Fulm. Is that where we show the Fulm output? Need to show the pre and postcondition code and where injection is happening, but also the actual \texttt{IntList} predicate in C and how it just easily translates to that
-\end{itemize}
+% {\color{violet}
+% New section outline (?):
+
+% \begin{itemize}
+%   \item Start with the C you want to specify/test
+%   \item Then go to separation-logic predicate you'd like to write
+%   \item Then show CN
+%   \item Then the rest, executing in Fulm, writing spec in CN and testing in Fulm. Is that where we show the Fulm output? Need to show the pre and postcondition code and where injection is happening, but also the actual \texttt{IntList} predicate in C and how it just easily translates to that
+% \end{itemize}
+% }
+
+% \section{A singly linked-list and its operations, in C}
+
+% \begin{center}
+% \lstinputlisting[language=CNC]{code_snippets/append.c}
+% \end{center}
+
+% TODO: explain linked-list struct and imperative (non-recursive) implementation -- idiomatic C. Segue into needing \texttt{IntList} predicate to specify this.
+
+\section{A singly-linked list, in C}
+
+Consider the following struct definition in C, representing a singly-linked list: 
+
+\begin{center}
+\lstinputlisting[language=C, numbers=none]{code_snippets/linked_list_def.h}
+\end{center}
+
+A \texttt{struct node} has, by this definition, a fixed-width integer value associated with it and a pointer to the next node in the list, also of type \texttt{struct node}. This definition can be unfolded recursively through the \texttt{next} member until this pointer is null, meaning the end of the linked list has been reached.
+
+For example, the following C code uses this definition to create a linked list with elements 1, 2 and 3, starting at \texttt{i1}:
+
+\begin{center}
+\lstinputlisting[language=C, numbers=none, firstline=3]{code_snippets/linked_list_concrete.c}
+\end{center}
+
+This construction is done in reverse order, starting at the last element, such that the list can be ``chained'' together in memory as it is being constructed via the \texttt{next} pointers.
+
+Now consider the following \texttt{append} operation on two such singly-linked lists, also implemented in C:
+
+\begin{center}
+\lstinputlisting[language=C, firstline=3]{code_snippets/append.c}
+\end{center}
+
+This takes two arguments of type \texttt{struct node}, \texttt{xs} and \texttt{ys}. If \texttt{xs} is the null pointer, the function returns \texttt{ys}; otherwise, it traverses \texttt{xs} through to its last element, and sets the \texttt{next} pointer of that element to be \texttt{ys}.
+
+To get higher assurance that this code behaves the way we expect it to, we might like to test it, or verify it, or both. We wish to describe that certain \emph{functional} properties hold (e.g.~what the integer elements of the returned, concatenated list are in relation to the input lists); since this is low-level C code that involves explicit pointers, we wish to describe \emph{ownership} properties as well -- here, the structure of the lists in memory on entry to and exit from the function. For capturing both desired kinds of properties, separation logic comes to the rescue.
+
+
 
 \section{The \texttt{IntList} predicate}
 
-\subsection{\texttt{IntList}, in classical separation logic}
+% \subsection{\texttt{IntList}, in classical separation logic}
 
 First, consider the following separation-logic predicate \texttt{IntList}:
 
@@ -546,8 +588,10 @@ We can now consider the following C implementation of a singly-linked list and i
 \TODO{Check this new imperative implementation actually works with CN and Fulminate, with same spec}
 
 \begin{center}
-\lstinputlisting[language=CNC]{code_snippets/append.c}
+\lstinputlisting[language=CNC]{code_snippets/append.cn.c}
 \end{center}
+
+
 
 
 
@@ -569,11 +613,100 @@ We can now consider the following C implementation of a singly-linked list and i
 
 % Show Fulminate runtime ownership error from partial spec, debug and fix up spec, run again.
 
-\chapter{Design}
+
+
+
+\chapter{Design goals \& choices}
+
+TODO: Expand
+TODO: Take goals from first-year report/why testing? slide from keynote. And, remember that real-world software engineers are more likely to be familiar with testing and writing partial inline assertions than ``fancy'' mathematical/separation-logic/formal-methods constructs, proof, etc.
+
+\newcommand{\myparagraph}[1]{\paragraph{#1}}
+
+
+{\color{red}
+The above observation is simple, especially in hindsight, but going from that to a practical system for runtime testing of CN assertions for actual C code requires one to consider many design and implementation questions. 
+%
+We begin with some high-level goals and how they have determined our design.
+
+
+\myparagraph{Runtime testing on concrete executions}
+Fulminate supports runtime testing of CN assertions, covering both their ownership and pure-value aspects,
+in concrete execution of the underlying C program.
+%
+Like other runtime testing approaches, it is thus testing whether pre- and post-conditions hold of the concrete states reached at those program points within a complete execution, not whether pre-conditions imply post-conditions.
+
+\myparagraph{Flexible usage models for a shallow on-ramp to higher assurance}
+Fulminate aims at a very lightweight user experience, providing a gentle on-ramp to higher assurance in a variety of testing and testing+proof workflows.
+Conventional developers, who are not verification experts, might start by writing partial CN specifications
+-- initially not much more than C \lstinline{assert}s --
+and get immediate benefits from them by quickly detecting errors in CN testing, without any proof whatsoever. They could then gradually add richer ownership and functional-correctness properties.
+In higher-assurance contexts, verification experts might extend these and write more specifications for proof, in exactly the same CN specification language, and use Fulminate to
+quickly debug both their specifications and their code by testing them, interleaved with using CN refinement-type proof to verify them. 
+
+\myparagraph{Testing of (a substantial fragment of) actual C}
+Fulminate supports a substantial fragment of actual C, rather than an idealised C-like language (though there are a number of features that are not yet supported, as we describe in \S\ref{sec:conc}).
+To this end, it uses the front-end of the Cerberus C semantics by Memarian et al.~\cite{CerberusPLDI16,cerberus-popl2019,UCAM-CL-TR-981} to parse, typecheck, and desugar C source files, as does CN.
+To inject the translations of CN specifications into the C code, we have developed new machinery as a part of Cerberus.
+
+
+
+\myparagraph{Testing using conventional build processes and tools, and with arbitrary existing test harnesses and tests}
+Like systems from
+Anna~\cite{DBLP:journals/software/LuckhamH85} to the Frama-C E-ACSL~\cite{DBLP:conf/sac/DelahayeKS13,DBLP:books/hal/Signoles18,DBLP:conf/issta/Signoles21}, Fulminate is structured as an annotated-C to C source-to-source translation, which adds instrumentation to check the CN specifications.  The result of this translation can be built with a conventional C compiler, just like the original C source. The instrumented binary can then be executed in the same way as the original program, in whatever test harness and on whatever test suite the developers normally use.
+%
+It is an on-line checker, obviating the need for logging that an off-line checker would have.  Fulminate checking (optionally) %\TODO{have to actually implement the 'optionally`}
+ involves checking every memory access, so logs would quickly become very large. 
+
+
+\myparagraph{Design for usability: error reporting}
+Design for usability also makes it essential to give good error reports on runtime test failures,
+including e.g.\ both the C source location and CN predicate-definition source location
+on runtime ownership and other failures.  
+We plan also to include optional ghost state to support reporting of which CN predicates own which parts of the heap, and thus which are involved in ownership errors.
+%    - design for good error reports (eg recording real source locations, and metadata for 
+%      which predicates).
+Even highly expert kernel developers may not have the ownership patterns of their code explicitly in mind, as they currently have no way to write them down, beyond prose comments, and no way to test or verify them.  CN specifications and such feedback from testing may help develop a solid intuition and understanding of this.
+%
+%strengthen user intuition for ownership
+%         (even very strong devs may not have ownership very expliitly in their heads - 
+%          they have no way to write it down or test it)
+
+\myparagraph{Design for usability: debugging dynamic failures}
+Design for debuggability leads us to build a translation that closely follows the structure of the source program, preserving its layout and comments, and with readable C for the instrumentation. This means one can, for example, sensibly use gdb or lldb on the generated code -- including examination of the abstract states computed by CN predicates, and the reasons why CN assertions fail.
+
+%\TODOPS{can we use nice CN-generated printers from the debugger?}
+
+\myparagraph{Minimal dependencies for bare-metal execution}
+One of our intended targets is systems code that runs in restricted execution environments, including hypervisor code such as Google's Android pKVM hypervisor~\cite{pKVM-linux-talk}, which runs as an isolated component at Arm-A Exception Level (EL) 2, above the Android kernel at EL1 and user code at EL0. 
+Such code has to work in a very limited context, without the C standard library or most operating-system services. Fulminate has not yet been demonstrated running at EL2,
+%\TODOPS{can we?},
+but this goal leads us to make the generated instrumentation essentially bare-metal C, without runtime dependencies.
+
+
+\myparagraph{Performance}
+%
+Runtime testing is intrinsically expensive compared with uninstrumented execution, and runtime testing of separation logic predicates and ownership has to walk the relevant part of the heap, and check and/or update the corresponding ghost state, whenever such a specification is reached.  
+%
+Compared with sanitizers, for example, Fulminate is checking much richer properties, and one should expect it to have substantially more performance cost.
+%
+However, Fulminate targets relatively small bodies of critical C code. 
+Our working hypothesis is that, for such code operating over relatively small datastructures, even a relatively naive implementation is fast enough to be useful, and to explore how it behaves in practice -- so long as it is on-line and translates to reasonable C, as described above.   There are many potential optimisations, and the underlying scheme would support sampling -- checking only a random subset of function executions -- but we do not explore them in this paper. 
+
+% this is really future work, but maybe it's nice to put here to ameliorate the performance downside?
+\myparagraph{Test generation}
+Fulminate does not itself do test-case \emph{generation}, but it should work well with property-based testing: if one can automatically synthesise unit test cases, benefitting from CN ownership specifications for function preconditions, then one will be able to test the rich CN properties in unit-test executions, making performance much less critical.  Fulminate may also work well with fuzzing, guiding fuzzing with rich-specification failures.
+}
+
+\myparagraph{Bridging testing and proof gap}
+Bridging gap between testing and proof/inferring proof hints/underapprox+overapprox/gradual story
+
 
 \chapter{Formalisation}
 
 Fulminate paper, link to Dhruv's supplementary material and credit him (+ Hiro if including partial spec formalisation).
+
+TODO: Ask Hiro about partial spec formalisation
 
 \chapter{Implementation}
 
