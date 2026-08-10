@@ -491,7 +491,7 @@ For example, the following C code uses this definition to create a linked list w
 
 This construction is done in reverse order, starting at the last element, such that the list can be ``chained'' together in memory as it is being constructed via the \texttt{next} pointers.
 
-Now consider the following \texttt{append} operation on two such singly-linked lists, also implemented in C:
+Now consider the following \texttt{list\_append} operation on two such singly-linked lists, also implemented in C:
 
 \begin{center}
 \lstinputlisting[language=C, firstline=3]{code_snippets/append.c}
@@ -499,23 +499,23 @@ Now consider the following \texttt{append} operation on two such singly-linked l
 
 This takes two arguments of type \texttt{struct node}, \texttt{xs} and \texttt{ys}. If \texttt{xs} is the null pointer, the function returns \texttt{ys}; otherwise, it traverses \texttt{xs} through to its last element, and sets the \texttt{next} pointer of that element to be \texttt{ys}.
 
-To get higher assurance that this code behaves the way we expect it to, we might like to test it, or verify it, or both; this might naturally lead us towards wanting to write a specification for this function. Ideally, we would like our specification to:
+To get higher assurance that this code behaves the way we expect it to, we might like to test it, or verify it, or both; this might naturally lead us towards wanting to write a specification for this function. 
 
-\begin{itemize}
+\section{Specifying \texttt{list\_append}}
+
+Ideally, we would like our specification for \texttt{list\_append} to:
+
+\begin{enumerate}
   \item Describe certain \emph{functional} properties -- e.g.~what the integer elements of the returned, concatenated list are in relation to the elements of the input lists.
-  \item Describe \emph{ownership} properties, since we are dealing with low-level C code that involves explicit pointers -- here, we care especially about the structure of the lists in memory on entry to and exit from the function.
-  \item Be \emph{executable} for the purpose of testing, but also usable for verification if desired.
-\end{itemize}
+  \item Describe \emph{ownership} properties, since we are dealing with low-level C code that involves explicit pointers and their fine-grained manipulation -- here, we care especially about the structure of the lists in memory on entry to and exit from the function.
+  \item Be \emph{executable} for the purpose of testing, but also usable for verification if desired. The executability of the specification is important not just for standalone testing of the C function, but also for being able to test the specification itself as we write it in an incremental fashion.
+\end{enumerate}
 
-For the first two desiderata, separation logic comes to the rescue. The last one, however, is not obvious on first glance, for reasons we divulge in the next section.
+The first goal is achievable using Hoare logic, but the second is not -- for tractable ownership reasoning, separation logic is needed. Thus, for the third goal to also hold, the separation-logic specification we write for \texttt{list\_append} must be executable -- and this is not obviously possible on first glance. 
 
+\subsection{Classical separation logic is not executable}
 
-
-\section{The \texttt{IntList} predicate}
-
-% \subsection{\texttt{IntList}, in classical separation logic}
-
-To formally describe a linked list of the shape we just saw, consider the following separation-logic predicate, \texttt{IntList}:
+To understand why this is the case, consider the following separation-logic predicate \texttt{IntList}, which formally describes a singly-linked list of the form we saw in Section~\ref{sec:linked-list-in-c}:
 
 \begin{figure}[h]
   \vspace{-0.8em}
@@ -528,8 +528,20 @@ To formally describe a linked list of the shape we just saw, consider the follow
 
 This predicate takes two inputs: a pointer $p$ that is either the null pointer, or points to the head of some linked list in memory, and a mathematical list $\alpha$, an abstract representation of the linked list's values. In the case where $p$ is not null, this predicate asserts ownership over the entire list one node at a time, via the points-to assertion and the recursive call to \texttt{IntList}.
 
+What would it mean to execute this predicate as part of some function-level specification? Rather than proving that these properties hold statically for any arbitrary $p$ and $\alpha$, we want to check for some concrete values of $p$ and $\alpha$, and the corresponding concrete heap, that we can assert the correct ownership over all nodes of the linked list, and that all of the expected logical properties hold. 
 
-\begin{figure}[h!]
+However, this predicate does not look particularly executable on first glance.
+
+\begin{enumerate}
+  \item There is a disjunction, which might require backtracking depending on whether $p$ is the null-pointer or not. In this case, this is detectable early in the execution of the first disjunct, but for arbitrary disjunction, this is not guaranteed.
+  \item The second disjunct contains existential quantification over ${hd}$, $q$ and ${tl}$, which might require searching for values.
+  \item There is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap.
+\end{enumerate}
+
+TODO: finish up this section somehow
+
+
+\begin{figure}[h]
   \begin{center}
     \begin{minipage}[t]{.28\textwidth}
       \vspace{-6.2em}
@@ -559,7 +571,9 @@ This predicate takes two inputs: a pointer $p$ that is either the null pointer, 
   \label{fig:intlist-cn}
 \end{figure}
 
-Now consider the same predicate, written in the CN specification language, as shown in Fig.~\ref{fig:intlist-cn}. The CN predicate definition is on the left hand side, with auxilliary C and CN definitions on the right. The CN definitions are enclosed in ``magic comments'' ({\color{commentcolour}$/*@ \ldots @*/$}), such that they can be parsed and desugared by the CN toolchain and treated like usual comments by any C compiler such as clang or gcc. 
+\subsection{CN separation logic \underline{is} executable!}
+
+Now consider the same \texttt{IntList} predicate, written in the CN specification language, as shown in Fig.~\ref{fig:intlist-cn}. The CN predicate definition is on the left hand side, with auxilliary C and CN definitions on the right. The CN definitions are enclosed in ``magic comments'' ({\color{commentcolour}$/*@ \ldots @*/$}), such that they can be parsed and desugared by the CN toolchain and treated like usual comments by any C compiler such as clang or gcc. 
 
 \TODO{rename node variable to something else? it's confusing for the variable and the struct tag to have the same name}
 
@@ -569,23 +583,12 @@ The \texttt{IntList} predicate signature on line 2 states that the predicate tak
 
 This CN predicate differs from its classical analogue in several ways: it takes the pointer $p$ as its only argument rather than both the pointer and its mathematical list representation $\alpha$; it has an if-else statement that checks whether $p$ is NULL instead of using logical disjunction to account for either case; and it constructs and returns the mathematical list $\alpha$ as a CN datatype. Crucially, points-to assertions are written in CN using its builtin \texttt{Owned} predicate: $p \mapsto v$ is written as $\texttt{take}\,\,v = \texttt{Owned}\langle\textit{ctype}\rangle(p)$, with CN's syntax restricting $v$ to be an output parameter here rather than an input that could be arbitrarily quantified over. The $\ast$ operator is encoded by CN's semicolons, ensuring each assertion holds for disjoint parts of the heap.
 
-something something, this allows us to start writing a specification. where does that discussion on executability go? :-(
-
+This version of the \texttt{IntList} predicate \emph{looks} executable, and it turns out that it is. 
 
 
 \section{Executing \texttt{IntList}}
 
-This version of the \texttt{IntList} predicate \emph{looks} executable, and it turns out that it is. 
 
-What would it mean to \emph{execute} this predicate as part of some function-level specification? Rather than proving that these properties hold statically for any arbitrary $p$ and $\alpha$, we want to check for some concrete values of $p$ and $\alpha$, and the corresponding concrete heap, that we can assert the correct ownership over all nodes of the linked list, and that all of the expected logical properties hold. 
-
-However, this predicate does not look particularly executable on first glance.
-
-\begin{enumerate}
-  \item There is a disjunction, which might require backtracking depending on whether $p$ is the null-pointer or not. In this case, this is detectable early in the execution of the first disjunct, but for arbitrary disjunction, this is not guaranteed.
-  \item The second disjunct contains existential quantification over ${hd}$, $q$ and ${tl}$, which might require searching for values.
-  \item There is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap.
-\end{enumerate}
 
 
 \section{Writing and testing specifications using Fulminate}
