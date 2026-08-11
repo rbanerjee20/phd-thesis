@@ -33,13 +33,12 @@ union seq_union {
 
 struct seq {
   enum seq_tag tag;
-  struct cntype* cntype;
   union seq_union u;
 };
 
 /* CN PREDICATES */
 
-static struct seq* IntList(cn_pointer* p, enum spec_mode spec_mode, struct loop_ownership* loop_ownership)
+static struct seq* IntList(cn_pointer* p, ...)
 {
   if (convert_from_cn_bool(cn_pointer_equality(p, convert_to_cn_pointer(0)))) {
     struct seq* a_621 = (struct seq*) cn_bump_malloc(sizeof(struct seq));
@@ -47,8 +46,8 @@ static struct seq* IntList(cn_pointer* p, enum spec_mode spec_mode, struct loop_
     return a_621;
   }
   else {
-    struct node_cn* node = owned_struct_node(p, spec_mode, loop_ownership);
-    struct seq* tl = IntList(node->next, spec_mode, loop_ownership);
+    struct node_cn* node = owned_struct_node(p, ...);
+    struct seq* tl = IntList(node->next, ...);
     struct seq* a_633 = (struct seq*) cn_bump_malloc(sizeof(struct seq));
     a_633->tag = CONS;
     a_633->u.cons = (struct cons*) cn_bump_malloc(sizeof(struct cons));
