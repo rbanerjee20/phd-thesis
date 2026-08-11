@@ -532,13 +532,7 @@ This predicate takes two inputs: a pointer $p$ that is either the null pointer, 
 
 What would it mean to execute this predicate as part of some function-level specification? Rather than proving that these properties hold statically for any arbitrary $p$ and $\alpha$, we want to check for some concrete values of $p$ and $\alpha$, and the corresponding concrete heap, that we can assert the correct ownership over all nodes of the linked list, and that all of the expected logical properties hold. 
 
-However, this predicate does not look particularly executable on first glance.
-
-\begin{enumerate}
-  \item There is a disjunction, which might require backtracking depending on whether $p$ is the null-pointer or not. In this case, this is detectable early in the execution of the first disjunct, but for arbitrary disjunction, this is not guaranteed.
-  \item The second disjunct contains existential quantification over ${hd}$, $q$ and ${tl}$, which might require searching for values.
-  \item There is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap, with a heap of size $n$ requiring $2^n$ possible splittings to be searched.
-\end{enumerate}
+However, this predicate does not look particularly executable on first glance. There is a disjunction, which might require backtracking depending on whether $p$ is the null-pointer or not. In this case, this is detectable early in the execution of the first disjunct, but for arbitrary disjunction, this is not guaranteed. In addition, the second disjunct contains existential quantification over ${hd}$, $q$ and ${tl}$, which might require searching for values, Furthermore, there is an instance of the separating conjunction $\ast$, which requires searching for disjoint splittings of the heap -- this blows up quickly with the size of the heap, with a heap of size $n$ requiring $2^n$ possible splittings to be searched.
 
 Thus, executing a classical separation-logic specification is, in the general case, computationally infeasible. The next section describes how carefully restricting the logic can eliminate these barriers to executability.
 
@@ -625,7 +619,7 @@ Fulminate is a tool that takes a C file with CN annotations, and transforms thes
   \begin{center}
   \lstset{
     numbers=left,
-    firstnumber=35,
+    firstnumber=34,
     numberfirstline=true
   }
   \begin{minipage}[t]{\textwidth}
@@ -646,12 +640,30 @@ This allows us to inspect Fulminate's translation of the \texttt{IntList} predic
 
 Although executing standard separation logic is computationally infeasible, we can now see that introducing some careful restrictions to the logic makes it possible to execute and test separation-logic specifications. CN's syntax is intentionally restrictive, disallowing arbitrary quantification and logical disjunction, and restricting arbitrary points-to assertions by assigning input and output modes to their pointer and pointee arguments respectively. Fulminate makes use of these restrictions, transforming CN separation-logic specifications into C executable specifications that check functional and ownership properties at runtime. Returning to the goals of Section~\ref{sec:spec-desiderata}, we therefore find that writing specifications in CN's assertion language, and applying the Fulminate+CN toolchain to them, allows all three initial desiderata to be satisfied.
 
-In these sections, we have sketched out the separation-logic predicate \texttt{IntList} that we need to specify the singly-linked list introduced in in Section~\ref{sec:linked-list-in-c}, first in standard separation logic and then in CN's restricted form of it, and decided the CN toolchain is most amenable to our specification-writing goals, due to its support for executable separation-logic specifications via Fulminate. Now we can return to the task at hand: writing a specification for the \texttt{list\_append} function we first saw in Section~\ref{sec:linked-list-in-c}.
+In these sections, we have sketched out the separation-logic predicate \texttt{IntList} that we need to specify the singly-linked list introduced in in Section~\ref{sec:linked-list-in-c}, first in standard separation logic and then in CN's restricted form of it, and decided the CN toolchain is most amenable to our specification-writing goals, due to its support for executable separation-logic specifications via Fulminate. Now we can return to the task at hand: writing a specification for the \texttt{list\_append} function.
 
 
 % \section{Executing \texttt{IntList}}
 
 \section{Writing a specification for \texttt{list\_append}, using Fulminate}
+
+Recall the \texttt{list\_append} function we first saw in Section~\ref{sec:linked-list-in-c}:
+
+\begin{center}
+\lstinputlisting[language=C, firstline=3]{code_snippets/append.c}
+\end{center}
+
+Outline
+
+\begin{itemize}
+  \item use \texttt{IntList} predicate to specify ownership, structure in memory (both encompassed by ``ownership pattern''?) and mathematical representation of list elements for xs and ys
+  \item use \texttt{requires} keyword, explain it's the keyword for a precondition in CN
+  \item show concrete test case -- \texttt{main} function needed, tiny handwritten driver. easy to write! emphasise ease
+  \item explain what application of Fulminate does abstractly. Might not need another figure, or maybe just comments/single function call for pre and post (like Saljuk actually has in Silver Fulm). Or put figure in appendix and just discuss abstractly here
+  \item show the runtime error and lldb trace after just providing precondition. (see overview/walkthrough section of PLDI paper). Emphasise that this is a partial spec. Fragmentary not so important here, unless you say the call to \texttt{list\_append} is wrapped inside some function \texttt{f} (might be too complex at this point, not sure)
+  \item use these to debug and realise you need the postcondition too. Fill it in, get rid of runtime error.
+  \item then finally get to functional property, that the returned mathematical list coming out of \texttt{IntList} is the mathematical representations of \texttt{xs} and \texttt{ys} appended together (bring in CN logical function \texttt{append} at this point and talk about its Fulminate representation being analagous to \texttt{IntList} but without the ownership assertion basically. No resources allowed! double-check CN paper for phrasing). Probably don't need to get this one wrong and then right; they already get the picture of how to debug partial specs.
+\end{itemize}
 
 
 
