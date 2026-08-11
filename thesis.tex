@@ -579,7 +579,7 @@ Now consider the same \texttt{IntList} predicate, written in the CN specificatio
 
 \TODO{rename node variable to something else? it's confusing for the variable and the struct tag to have the same name}
 
-The \texttt{IntList} predicate signature on line 2 states that the predicate takes a single argument $p$ of generic pointer type, and returns a \texttt{datatype seq}, which is defined on lines 19-22 as a CN datatype with two constructors, \texttt{Nil} and \texttt{Cons}. The \texttt{rec} keyword indicates that the predicate is recursive. The predicate first checks whether the pointer $p$ is null, returning the \texttt{Nil} constructor if that is the case (lines 3-5). Otherwise, it extracts the value stored at $p$ using CN's builtin \texttt{Owned} predicate, storing it in a new variable called \texttt{node} (line 7). (Note the angle brackets $\langle\ldots\rangle$, which denote the expected C type of $p$'s value -- here, this has type \texttt{struct node}, defined on lines 13-16 as a usual C singly-linked list with some \texttt{head} value and a \texttt{next} pointer to the rest of the list.) After that, \texttt{IntList} is called recursively on the \texttt{next} pointer of $p$'s value, with the associated mathematical list datatype stored in a new variable \texttt{tl} (line 8). Finally, the 32-bit integer \texttt{head} member of \texttt{node} (which we recall has type \texttt{struct node}) and the mathematical abstraction of the rest of the list are composed under the \texttt{Cons} constructor and returned (line 9).  
+The \texttt{IntList} predicate signature on line 2 states that the predicate takes a single argument $p$ of generic pointer type, and returns a \texttt{datatype seq}, which is defined on lines 19-22 as a CN datatype with two constructors, \texttt{Nil} and \texttt{Cons}. The \texttt{rec} keyword indicates that the predicate is recursive. The predicate first checks whether the pointer $p$ is null, returning the \texttt{Nil} constructor if that is the case (lines 3-5). Otherwise, it extracts the value stored at $p$ using CN's builtin \texttt{Owned} predicate, storing it in a new variable called \texttt{node} (line 7). (Note the angle brackets $\langle\ldots\rangle$, which denote the expected C type of $p$'s value -- here, this has type \texttt{struct node}, defined on lines 13-16 as a usual C singly-linked list with some value \texttt{val} and a \texttt{next} pointer to the rest of the list.) After that, \texttt{IntList} is called recursively on the \texttt{next} pointer of $p$'s value, with the associated mathematical list datatype stored in a new variable \texttt{tl} (line 8). Finally, the 32-bit integer \texttt{head} member of \texttt{node} (which we recall has type \texttt{struct node}) and the mathematical abstraction of the rest of the list are composed under the \texttt{Cons} constructor and returned (line 9).  
 
 \TODO{Following para might need to be rejigged slightly to improve flow}
 
@@ -650,7 +650,7 @@ This function has the same shape as the CN predicate: the if-statement on line 3
 
 % \section{Executing \texttt{IntList}}
 
-\section{Writing and testing a specification using Fulminate}
+\section{Writing a specification for \texttt{list\_append}, using Fulminate}
 
 We can now consider the following C implementation of a singly-linked list and its append operation, specified in CN using the \texttt{IntList} predicate we just defined:
 
