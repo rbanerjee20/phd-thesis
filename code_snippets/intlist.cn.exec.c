@@ -38,7 +38,7 @@ struct seq {
 
 /* CN PREDICATES */
 
-static struct seq* IntList(cn_pointer* p, ...)
+static struct seq* IntList(cn_pointer* p, enum spec_mode, ...)
 {
   if (convert_from_cn_bool(cn_pointer_equality(p, convert_to_cn_pointer(0)))) {
     struct seq* a_621 = (struct seq*) cn_bump_malloc(sizeof(struct seq));
@@ -46,8 +46,8 @@ static struct seq* IntList(cn_pointer* p, ...)
     return a_621;
   }
   else {
-    struct node_cn* node = owned_struct_node(p, ...);
-    struct seq* tl = IntList(node->next, ...);
+    struct node_cn* node = owned_struct_node(p, spec_mode, ...);
+    struct seq* tl = IntList(node->next, spec_mode, ...);
     struct seq* a_633 = (struct seq*) cn_bump_malloc(sizeof(struct seq));
     a_633->tag = CONS;
     a_633->u.cons = (struct cons*) cn_bump_malloc(sizeof(struct cons));
