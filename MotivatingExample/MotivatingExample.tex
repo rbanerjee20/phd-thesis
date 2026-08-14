@@ -45,9 +45,13 @@ This construction is done in reverse order, starting at the last element, such t
 
 Now consider the following \texttt{list\_append} operation on two such singly-linked lists, also implemented in C:
 
-\begin{center}
-\lstinputlisting[language=C, firstline=3]{code_snippets/append.c}
-\end{center}
+\begin{figure}
+    \begin{center}
+    \lstinputlisting[language=C, firstline=3]{code_snippets/append.c}
+    \vspace{-1em}
+    \end{center}
+\end{figure}
+
 
 This takes two arguments of type \texttt{struct node}, \texttt{xs} and \texttt{ys}. If \texttt{xs} is the null pointer, the function returns \texttt{ys}; otherwise, it traverses \texttt{xs} through to its last element, and sets the \texttt{next} pointer of that element to be \texttt{ys}.
 
@@ -114,7 +118,7 @@ Thus, executing a classical separation-logic specification is, in the general ca
     \end{minipage}
     % \vspace*{0.8\baselineskip}
   \end{center}
-  \vspace*{-4mm}
+  \vspace{-1em}
   \caption{The \texttt{IntList} predicate, written in the CN specification language. The CN definitions are enclosed in magic comments {\color{commentcolour}$/*@ \ldots @*/$} (lines 1-12, 18-23). The \texttt{IntList} predicate definition relies on the the C \texttt{struct node} definition (lines 13-16), which is the same as the one introduced in Section~\ref{sec:linked-list-in-c}.}
   \label{fig:intlist-cn}
 \end{figure}
@@ -162,7 +166,7 @@ Fulminate is a tool that takes a C file with CN annotations, and transforms thes
     \end{minipage}
     % \vspace*{0.8\baselineskip}
   \end{center}
-  \vspace*{-4mm}
+  \vspace{-1em}
   \caption{Top-level type definitions produced by Fulminate when applied to CN \texttt{IntList} example.}
   \label{fig:intlist-fulm-datatype-defs}
 \end{figure}
@@ -177,6 +181,7 @@ Fulminate is a tool that takes a C file with CN annotations, and transforms thes
   \begin{minipage}[t]{\textwidth}
   \scalebox{0.9}{\lstinputlisting[language=C, firstline=41, lastline=58, breaklines]{code_snippets/intlist.cn.exec.c}}
   \end{minipage}
+  \vspace{-1em}
   \end{center}
   \caption{Fulminate translation of the CN \texttt{IntList} predicate.}
   \label{fig:intlist-fulm}
@@ -206,6 +211,7 @@ Recall the \texttt{list\_append} function we first saw in Section~\ref{sec:linke
 \begin{figure}[h]
     \begin{center}
     \lstinputlisting[language=C, firstline=3]{code_snippets/append.c}
+    \vspace{-1em}
     \end{center}
 \end{figure}
 
@@ -217,14 +223,31 @@ This leads us to our first specification attempt for \texttt{list\_append}, as s
 \begin{figure}[h]
     \begin{center}
     \lstinputlisting[language=C, firstline=21]{code_snippets/append.cn.1.c}
+    \vspace{-1em}
     \end{center}
     \caption{An initial, partial CN specification for \texttt{list\_append}.}
     \label{fig:partial-cn-spec}
 \end{figure}
 
-Even at this early stage of specification-writing, before writing e.g.~a postcondition or any inline assertions, it would be useful to know whether our specification is on the right track by testing what we have so far, for which we can apply Fulminate to the partially-specified \texttt{list\_append }function.
+Even at this early stage of specification-writing, before writing e.g.~a postcondition or any inline assertions, it would be useful to know whether our specification is on the right track by testing what we have so far, for which we can apply Fulminate to the partially-specified \texttt{list\_append} function.
 
-PS and NK 12/08: Start with some high-level case studies. Examples of wrong specs, corresponding error messages. Make Fulminate error messages more readable instead of feeling obliged to present \emph{entire} Fulminate output in the first instance. Can get to that afterwards.
+\subsection{Testing our partial specification with Fulminate}
+
+Fulminate will take our CN-annotated C file and produce a C file with suitable instrumentation. To actually \emph{exercise} and run the Fulminate-inserted instrumentation, we need to provide a concrete test case. The simplest way to do so is to write a small driver by hand via the \texttt{main} function, as shown in Fig.~\ref{fig:list_append_driver}. (Later, we will discuss how more sophisticated test cases can be generated more automatically, but for now, this is good enough.)
+
+\begin{figure}[h!]
+    \begin{center}
+    \lstinputlisting[language=C, firstline=5]{code_snippets/driver.c}
+    \vspace{-1em}
+    \end{center}
+    \label{fig:list_append_driver}
+    \caption{A simple handwritten driver for \texttt{list\_append}.}
+\end{figure}
+
+This driver creates a singleton linked list with value 2, storing this at the address of the newly-created \texttt{i1}. It then creates a distinct-in-memory linked list of two elements $[3, 4]$ stored at the address of the newly-created \texttt{i2}. Finally, it calls the \texttt{list\_append} function, passing the addresses of \texttt{i1} and \texttt{i2} as arguments, and stores the resulting pointer in \texttt{res}.
+
+
+% PS and NK 12/08: Start with some high-level case studies. Examples of wrong specs, corresponding error messages. Make Fulminate error messages more readable instead of feeling obliged to present \emph{entire} Fulminate output in the first instance. Can get to that afterwards.
 
 \subsection{Fulminate's instrumentation of \texttt{list\_append}}
 
