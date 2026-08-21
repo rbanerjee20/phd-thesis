@@ -233,6 +233,19 @@ Even at this early stage of specification-writing, before writing e.g.~a postcon
 
 \subsection{Testing our partial specification with Fulminate}
 
+{\color{violet}
+Partial spec plan from zero to hero. (along the way, show lldb trace at ownership errors and print concrete values. Use Hiro machinery to make printing abstract values easier?)
+
+\begin{enumerate}
+    \item Step 1: just precondition over \texttt{xs}, results in postcondition leak check failure because we didn't put ownership back.
+    \item Next step: add postcondition over \texttt{xs}, ignore \texttt{ys} and naively hope for the best. Anyway, \texttt{ys} is not dereferenced anywhere in the function, so we don't need read/write access to the linked list it points to. So maybe not mentioning it anywhere in the spec is ok. But then we get a postcondition ownership check failure inside \texttt{IntList} because calling that predicate over the new list which is \texttt{xs} and \texttt{ys} linked together in memory is resulting in an ownership error once we get to \texttt{ys}. (Recall that \texttt{xs} in the postcondition is the same as on entry, but it's an address so what we get after dereferencing might be different post-function-body)
+    \item Therefore, we must now add \texttt{ys} to our precondition to make sure we've taken the right ownership of it in order to put it back. (the alternative? trying to write a different predicate that only captures the ownership of the original \texttt{xs}. But this morally isn't what we want in a \texttt{list\_append} function, and also makes describing functional properties of the returned list impossible, as we see in a minute)
+    \item Finally ownership error is ok. Now we want to say something about the mathematical representation of the returned list. Do the obvious thing, show it works. As an aside, show what kind of logical error (assertion failure) Fulminate would throw if we did something obviously wrong -- e.g. appended list has the same values as \texttt{xs} does on entry.
+\end{enumerate}
+}
+
+================================
+
 Fulminate will take our CN-annotated C file and produce a C file with suitable instrumentation. To actually \emph{exercise} and run the Fulminate-inserted instrumentation, we need to provide a concrete test case. The simplest way to do so is to write a small driver by hand via the \texttt{main} function, as shown in Fig.~\ref{fig:list_append_driver}. (Later, we will discuss how more sophisticated test cases can be generated more automatically, but for now, this is good enough.)
 
 \begin{figure}[h!]
@@ -245,6 +258,16 @@ Fulminate will take our CN-annotated C file and produce a C file with suitable i
 \end{figure}
 
 This driver creates a singleton linked list with value 2, allocating it onto the stack and assigning \texttt{i1} to it. It then creates a linked list of two elements $[3, 4]$, first by creating the second node of the list with value 4 and assigning this to \texttt{i3}, and then constructing the full list by creating the first node of the list with value 3, setting its \texttt{next} pointer to be \texttt{i3}, and assigning the result to \texttt{i2}. (The C compiler will ensure that \texttt{i1}, \texttt{i2} and \texttt{i3} are all allocated at distinct stack locations.) Finally, the \texttt{list\_append} function is called, with the addresses of \texttt{i1} and \texttt{i2} passed as arguments, and the resulting pointer is stored in \texttt{res}.
+
+Now, let's try running Fulminate on this.
+
+\begin{figure}[h!]
+    \begin{center}
+    \lstinputlisting{code_snippets/append.error.txt}
+    \vspace{-1em}
+    \end{center}
+    \label{fig:append_fulm_error_msg}
+\end{figure}
 
 
 % PS and NK 12/08: Start with some high-level case studies. Examples of wrong specs, corresponding error messages. Make Fulminate error messages more readable instead of feeling obliged to present \emph{entire} Fulminate output in the first instance. Can get to that afterwards.
